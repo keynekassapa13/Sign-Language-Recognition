@@ -1,5 +1,4 @@
-# Sign-Language-Recognitio
-D
+# Sign Language Recognition for Social Robotics
 This is a [UQ Summer Research Project](https://employability.uq.edu.au/summer-research) part of the [University of Queensland](https://www.uq.edu.au/) [Co-innovation Group](https://www.itee.uq.edu.au/research/co-innovation).
 
 The project explores techniques, algorithms, and implementations for Sign Language Recogition. In particular, we are working with AUSLAN, Australia's sign language.
@@ -47,4 +46,4 @@ Implementation-wise, we aim to progressively explore:
 - Recognising different words, letters, and numbers through hand orientation, shape, and position
 - Effectively recognising different words as a user transitions through a sentence.
 - Cultural differences with interacting with a social robot through signed language, as opposed to spoken.
->>>>>>> 491967160375f846ec1733a142bbf942cc96852e
+
