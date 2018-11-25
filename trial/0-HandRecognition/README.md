@@ -15,6 +15,9 @@ Note - excuse the mess of a class, this is just a rough implementation
 target box. This is because the script needs to first average the background, if the
 background keeps changing (such as a result of a moving hand) then the background average
 will naturally be erratic.
+    * Note - you may have to move/wave your hand quickly once in the green box on the video 
+    feed to trigger the thresholding. But once the threshold window opens you should let the 
+    background average out before adding your hand + movements back in.
 * Once the threshold window opens (the grayscaled smaller window), then you can show the
 camera your hand and observe the red contours around it!
 
