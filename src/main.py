@@ -8,15 +8,16 @@ TODO: A real GUI
 For now capture_camera_loop() just runs the camera capture frame-by-frame.
 """
 
-CAMERA_LOG = logger_settings.setup_custom_logger("MAIN")
+MAIN_LOG = logger_settings.setup_custom_logger("MAIN")
 
 
 def capture_camera_loop():
     camera = cv.VideoCapture(0)
-    CAMERA_LOG.info(f"Camera capture started with {camera}")
+    MAIN_LOG.info(f"Camera {camera} capture started.")
     hand_segment = HandSegmentation(camera)
     num_frames = 0
 
+    MAIN_LOG.info("Started background averaging.")
     while True:
         # Capture frames
         return_val, frame = hand_segment.camera.read(0)
@@ -37,6 +38,8 @@ def capture_camera_loop():
             hand_segment.average_background(gray_frame)
             # hand_segment.average_background(KNN_frame)
             # hand_segment.average_background(MOG2_frame)
+        elif num_frames == 60:
+            MAIN_LOG.info("Finished background averaging.")
         else:
             # Segment with appropriate frame
             hand = hand_segment.segment_hand(gray_frame)
@@ -58,6 +61,7 @@ def capture_camera_loop():
 
     # Quit
     camera.release()
+    MAIN_LOG.info(f"Camera {camera} released.")
 
 
 if __name__ == '__main__':
