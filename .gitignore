@@ -116,3 +116,4 @@ dmypy.json
 
 # Data
 ./trial/0-OpenCV-PyTorch-Signs/data
+log.txt
