@@ -7,12 +7,12 @@ TODO: A real GUI
 For now capture_camera_loop() just runs the camera capture frame-by-frame.
 """
 
-CAMERA_LOG = logger_settings.setup_custom_logger("MAIN")
+MAIN_LOG = logger_settings.setup_custom_logger("MAIN")
 
 
 def capture_camera_loop():
     camera = cv.VideoCapture(0)
-    CAMERA_LOG.info(f"Camera capture started with {camera}")
+    MAIN_LOG.info(f"Camera capture started with {camera}")
 
     while True:
         # Capture frames
