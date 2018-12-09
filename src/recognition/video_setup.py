@@ -20,3 +20,9 @@ class VideoEnhancement:
 
     def __rectangle(self):
         self.frame = self.frame[0:350, 700:1200]
+
+    def turnToYCrCb(self):
+        self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2YCR_CB)
+
+    def skinExtraction(self):
+        self.frame = cv2.inRange(self.frame, self.lower, self.upper)
