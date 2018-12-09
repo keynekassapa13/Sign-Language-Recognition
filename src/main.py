@@ -21,7 +21,8 @@ CAMERA_LOG = logger_settings.setup_custom_logger("MAIN")
 lower = np.array([0,140,0], dtype="uint8")
 upper = np.array([255,173,127], dtype="uint8")
 
-rectangle_points = [(700,0), (1200,350)]
+right_rectangle_points = [(700,0), (1200,350)]
+left_rectangle_points = [(0,0), (400,350)]
 
 
 def capture_camera_loop():
@@ -32,26 +33,48 @@ def capture_camera_loop():
         # Capture frames
         return_val, frame = camera.read()
 
+        frame = cv2.flip(frame, 1)
+
         # Colour spaces for camera output
         # frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
-        frame_class = VideoEnhancement(
+        # ------------------ Right Hand ------------------
+        right_frame_class = VideoEnhancement(
             frame,
             lower,
-            upper
+            upper,
+            right_rectangle_points
         )
-        frame_class.turnToYCrCb()
-        frame_class.skinExtraction()
-        frame_class.contours(1000)
-        # frame_class.frameFiltering()
+        right_frame_class.turnToYCrCb()
+        right_frame_class.skinExtraction()
+        right_frame_class.contours(1000)
+
+        # ------------------ Left Hand ------------------
+
+        left_frame_class = VideoEnhancement(
+            frame,
+            lower,
+            upper,
+            left_rectangle_points
+        )
+        left_frame_class.turnToYCrCb()
+        left_frame_class.skinExtraction()
+        left_frame_class.contours(1000)
+
+        # ------------------ Hand Recognition ------------------
 
         hand_recognition_frame = HandRecognition(
-            frame_class.frame,
-            frame_class.original
+            left_frame_class.frame,
+            right_frame_class.frame,
+            frame,
+            left_rectangle_points,
+            right_rectangle_points
         )
 
-        # Output Camera
-        cv.imshow('Capture', hand_recognition_frame.frame)
+        # ------------------ Output Camera ------------------
+
+        cv.imshow('Left Hand', hand_recognition_frame.left_frame)
+        cv.imshow('Right Hand', hand_recognition_frame.right_frame)
         cv.imshow('Original', hand_recognition_frame.original)
 
         # Break loop
