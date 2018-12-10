@@ -3,7 +3,7 @@ import sys
 
 
 def setup_custom_logger(name):
-    formatter = logging.Formatter(fmt='%(asctime)s %(name)s %(levelname)-8s %(message)s',
+    formatter = logging.Formatter(fmt='%(asctime)s [%(levelname)-s] %(name)-8s %(message)s',
                                   datefmt='%Y-%m-%d %H:%M:%S')
     handler = logging.FileHandler('log.txt', mode='w')
     handler.setFormatter(formatter)
