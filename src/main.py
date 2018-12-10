@@ -1,11 +1,10 @@
 import cv2 as cv
-<<<<<<< HEAD
+import imutils
 import numpy as np
 from matplotlib import pyplot as plt
-=======
+
+from recognition import *
 from settings import logger_settings
-from recognition.hand_segment_bgsub import HandSegmentation, run_hand_segmentation
->>>>>>> hand_segmentation_background
 
 """
 TODO: A real GUI
@@ -13,15 +12,7 @@ TODO: A real GUI
 For now capture_camera_loop() just runs the camera capture frame-by-frame.
 """
 
-<<<<<<< HEAD
-# ------------------ Files ------------------
-from recognition import *
-from settings import logger_settings
-
-CAMERA_LOG = logger_settings.setup_custom_logger("MAIN")
-=======
 MAIN_LOG = logger_settings.setup_custom_logger("MAIN")
->>>>>>> hand_segmentation_background
 
 # ------------------ Variables ------------------
 # lower = np.array([0,133,77], dtype="uint8")
@@ -33,40 +24,60 @@ upper = np.array([255,173,127], dtype="uint8")
 right_rectangle_points = [(700,0), (1200,350)]
 left_rectangle_points = [(0,0), (400,350)]
 
-
+# TODO: James is going to clean this up!!
 def capture_camera_loop():
     camera = cv.VideoCapture(0)
     MAIN_LOG.info(f"Camera {camera} capture started.")
 
+    ret, frame = camera.read()
+    frame = imutils.resize(frame, width=1200)
+    frame = cv2.flip(frame, 1)
+    right_frame_class = VideoEnhancement(frame, lower, upper, right_rectangle_points)
+    left_frame_class = VideoEnhancement(frame, lower, upper, left_rectangle_points)
+    right_frame_class.set_frame(frame)
+    left_frame_class.set_frame(frame)
+
+    num_frames = 60
     while True:
         # Capture frames
         return_val, frame = camera.read()
 
+        frame = imutils.resize(frame, width=1200)
         frame = cv2.flip(frame, 1)
 
-        # Colour spaces for camera output
-        # frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-
         # ------------------ Right Hand ------------------
-        right_frame_class = VideoEnhancement(
-            frame,
-            lower,
-            upper,
-            right_rectangle_points
-        )
-        right_frame_class.skinExtraction()
-        right_frame_class.contours(1000)
+        # right_frame_class = VideoEnhancement(
+        #     frame,
+        #     lower,
+        #     upper,
+        #     right_rectangle_points
+        # )
+
+        right_frame_class.set_frame(frame)
+        if num_frames < 30:
+            right_frame_class.background_avg()
+        else:
+            # right_frame_class.make_rectangle()
+            # right_frame_class.turnToYCrCb()
+            right_frame_class.skinExtraction()
+            right_frame_class.contours(1000)
 
         # ------------------ Left Hand ------------------
 
-        left_frame_class = VideoEnhancement(
-            frame,
-            lower,
-            upper,
-            left_rectangle_points
-        )
-        left_frame_class.skinExtraction()
-        left_frame_class.contours(1000)
+        # left_frame_class = VideoEnhancement(
+        #     frame,
+        #     lower,
+        #     upper,
+        #     left_rectangle_points
+        # )
+        left_frame_class.set_frame(frame)
+        if num_frames < 30:
+            left_frame_class.background_avg()
+        else:
+            # left_frame_class.make_rectangle()
+            # left_frame_class.turnToYCrCb()
+            left_frame_class.skinExtraction()
+            left_frame_class.contours(1000)
 
         # ------------------ Hand Recognition ------------------
 
@@ -90,7 +101,6 @@ def capture_camera_loop():
     # run_hand_segmentation(camera, (10, 100, 225, 350))
 
     # Quit
-    logger_settings.log_time()
     camera.release()
     MAIN_LOG.info(f"Camera {camera} released.")
 

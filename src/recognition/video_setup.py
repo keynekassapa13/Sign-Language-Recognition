@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import time
 
+
 class VideoEnhancement:
 
     def __init__(self, frame, lower = 0, upper = 0, rectangle = []):
@@ -12,23 +13,37 @@ class VideoEnhancement:
         self.upper = upper
         self.mask = None
         self.rectangle = rectangle
-        self.__rectangle()
-        self.__turnToYCrCb()
+        self.background = None
+        # self.rectangle()
+        # self.turnToYCrCb()
 
-    def __rectangle(self):
+    def set_frame(self, frame):
+        self.frame = frame
+        self.make_rectangle()
+        self.turnToYCrCb()
+
+    def make_rectangle(self):
         self.frame = self.frame[
             self.rectangle[0][1]:self.rectangle[1][1],
             self.rectangle[0][0]:self.rectangle[1][0]
         ]
 
-    def __turnToYCrCb(self):
+    def turnToYCrCb(self):
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2YCR_CB)
+        self.frame = cv2.GaussianBlur(self.frame, (5, 5), 0)
+
+    def background_avg(self, weight: float = 0.2):
+        if self.background is None:
+            self.background = self.frame.copy().astype(np.float)
+        else:
+            cv2.accumulateWeighted(self.frame, self.background, weight)
 
     def skinExtraction(self):
         self.frame = cv2.inRange(self.frame, self.lower, self.upper)
 
     def contours(self, areaNum):
-        ret, thresh = cv2.threshold(self.frame, 50, 255, cv2.THRESH_BINARY)
+        # diff = cv2.absdiff(self.background.astype(np.uint8), self.frame)
+        ret, thresh = cv2.threshold(self.frame, 50, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         # _, contours, _ = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         im2, contours, hierarchy = cv2.findContours(self.frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
