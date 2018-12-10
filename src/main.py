@@ -1,6 +1,11 @@
 import cv2 as cv
+<<<<<<< HEAD
 import numpy as np
 from matplotlib import pyplot as plt
+=======
+from settings import logger_settings
+from recognition.hand_segment_bgsub import HandSegmentation, run_hand_segmentation
+>>>>>>> hand_segmentation_background
 
 """
 TODO: A real GUI
@@ -8,11 +13,15 @@ TODO: A real GUI
 For now capture_camera_loop() just runs the camera capture frame-by-frame.
 """
 
+<<<<<<< HEAD
 # ------------------ Files ------------------
 from recognition import *
 from settings import logger_settings
 
 CAMERA_LOG = logger_settings.setup_custom_logger("MAIN")
+=======
+MAIN_LOG = logger_settings.setup_custom_logger("MAIN")
+>>>>>>> hand_segmentation_background
 
 # ------------------ Variables ------------------
 # lower = np.array([0,133,77], dtype="uint8")
@@ -27,7 +36,7 @@ left_rectangle_points = [(0,0), (400,350)]
 
 def capture_camera_loop():
     camera = cv.VideoCapture(0)
-    CAMERA_LOG.info(f"Camera capture started with {camera}")
+    MAIN_LOG.info(f"Camera {camera} capture started.")
 
     while True:
         # Capture frames
@@ -78,10 +87,12 @@ def capture_camera_loop():
         # Break loop
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
+    # run_hand_segmentation(camera, (10, 100, 225, 350))
 
     # Quit
     logger_settings.log_time()
     camera.release()
+    MAIN_LOG.info(f"Camera {camera} released.")
 
 
 if __name__ == '__main__':
