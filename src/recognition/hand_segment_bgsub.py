@@ -57,6 +57,8 @@ class HandSegmentation:
         diff = cv.absdiff(self.bg_avg.astype("uint8"), frame)
         # Threshold diffed image for foreground
         threshold_frame = cv.threshold(diff, threshold, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)[1]
+        threshold_frame = cv.erode(threshold_frame, None, iterations=2)
+        threshold_frame = cv.dilate(threshold_frame, None, iterations=2)
         return threshold_frame
 
     def contour_hand(self, threshold_frame):

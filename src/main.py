@@ -15,7 +15,7 @@ def capture_camera_loop():
     camera = cv.VideoCapture(0)
     MAIN_LOG.info(f"Camera {camera} capture started.")
 
-    run_hand_segmentation(camera, (10, 100, 225, 350))
+    run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
 
     # Quit
     camera.release()
