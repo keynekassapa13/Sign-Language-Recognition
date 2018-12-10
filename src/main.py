@@ -98,7 +98,8 @@ def capture_camera_loop():
         # Break loop
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
-    # run_hand_segmentation(camera, (10, 100, 225, 350))
+
+    # run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
 
     # Quit
     camera.release()
