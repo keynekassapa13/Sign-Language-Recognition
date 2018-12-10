@@ -13,6 +13,7 @@ class VideoEnhancement:
         self.mask = None
         self.rectangle = rectangle
         self.__rectangle()
+        self.__turnToYCrCb()
 
     def __rectangle(self):
         self.frame = self.frame[
@@ -20,7 +21,7 @@ class VideoEnhancement:
             self.rectangle[0][0]:self.rectangle[1][0]
         ]
 
-    def turnToYCrCb(self):
+    def __turnToYCrCb(self):
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2YCR_CB)
 
     def skinExtraction(self):

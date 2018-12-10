@@ -45,7 +45,6 @@ def capture_camera_loop():
             upper,
             right_rectangle_points
         )
-        right_frame_class.turnToYCrCb()
         right_frame_class.skinExtraction()
         right_frame_class.contours(1000)
 
@@ -57,7 +56,6 @@ def capture_camera_loop():
             upper,
             left_rectangle_points
         )
-        left_frame_class.turnToYCrCb()
         left_frame_class.skinExtraction()
         left_frame_class.contours(1000)
 
