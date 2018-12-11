@@ -25,12 +25,13 @@ Variables:
 lower - the lowest HSV skin color
 upper - the highest HSV skin color
 
+Example:
+    lower = np.array([0,133,77], dtype="uint8")
+    upper = np.array([255,173,127], dtype="uint8")
+
 Please mind that lower and upper color threshold need to be adjusted with
 surrounding situation
 """
-
-# lower = np.array([0,133,77], dtype="uint8")
-# upper = np.array([255,173,127], dtype="uint8")
 
 lower = np.array([0,140,0], dtype="uint8")
 upper = np.array([255,173,127], dtype="uint8")
@@ -67,6 +68,13 @@ def capture_camera_loop():
     left_frame_class = VideoEnhancement(frame, lower, upper, left_rectangle_points)
 
     if camera.isOpened():
+        """
+        Rectangles:
+        ----------
+
+        Right - 65% to 100% width with 350 px height
+        Left - 0% to 35% width with 350 px height
+        """
         width = camera.get(3)
         height = camera.get(4)
 
