@@ -1,16 +1,33 @@
 import cv2 as cv
 import imutils
-from typing import Tuple
+from typing import Tuple, List
 from settings import logger_settings
 
 
 HAND_SEG_LOG = logger_settings.setup_custom_logger("HAND_SEG")
 
 
+class HandRecogniserOutput:
+
+    def __init__(self, left_frame, right_frame, main_frame, left_rect_dims: List[Tuple[int, int]], right_rect_dims: List[Tuple[int, int]]):
+        self.left_frame = left_frame
+        self.right_frame = right_frame
+        self.main_frame = main_frame
+        self.left_rectangle = left_rect_dims
+        self.right_rectangle = right_rect_dims
+        self.hand_segment = HandSegmentation(self)
+
+    def run_hand_segmentation(self):
+        return None
+
+    def run_counter(self):
+        return None
+
 class HandSegmentation:
     """Segments the hand from the background using background subraction."""
 
-    def __init__(self):
+    def __init__(self, output):
+        self.output = output
         self.bg_subtractors = {
             'KNN': cv.createBackgroundSubtractorKNN(),
             'MOG2': cv.createBackgroundSubtractorMOG2()
