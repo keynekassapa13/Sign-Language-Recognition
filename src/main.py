@@ -68,7 +68,7 @@ def capture_camera_loop():
 
         right_frame_class.set_frame(frame)
         right_frame_class.skinExtraction()
-        right_frame_class.contours(1000)
+        right_frame_class.contours2()
 
         # ------------------ Left Hand ------------------
 

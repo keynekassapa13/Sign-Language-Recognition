@@ -4,7 +4,7 @@ import cv2
 import time
 from settings import logger_settings
 
-CAMERA_LOG = logger_settings.setup_custom_logger("MAIN")
+VIDEO_E = logger_settings.setup_custom_logger("VIDEO_E")
 
 
 class VideoEnhancement:
@@ -25,6 +25,7 @@ class VideoEnhancement:
         self.mask = None
         self.rectangle = rectangle
         self.background = None
+        self.max_contours = None
         self.set_frame(frame)
 
     def set_frame(self, frame):
@@ -42,6 +43,7 @@ class VideoEnhancement:
 
     def turnToYCrCb(self):
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2YCR_CB)
+        self.frame = cv2.GaussianBlur(self.frame, (3, 3), 0)
 
     def background_avg(self, weight: float = 0.2):
         if self.background is None:
@@ -55,6 +57,32 @@ class VideoEnhancement:
 
     def skinExtraction(self):
         self.frame = cv2.inRange(self.frame, self.lower, self.upper)
+
+    def contours2(self):
+        ret, self.frame = cv2.threshold(self.frame, 50, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        im2, contours, hierarchy = cv2.findContours(self.frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        if contours:
+            max_contours = max(contours, key=cv2.contourArea)
+            cv2.drawContours(self.frame, max_contours, -1, (0, 255, 0), 3)
+
+            hull = []
+            for i in range(len(contours)):
+                hull.append(cv2.convexHull(contours[i], False))
+            for i in range(len(contours)):
+                cv2.drawContours(self.frame, hull, i, (255, 0, 0), 3, 8)
+
+            hull2 = cv2.convexHull(max_contours, returnPoints=False)
+            defects = cv2.convexityDefects(max_contours, hull2)
+
+            if defects is not None:
+                for i in range(defects.shape[0]):
+                    s, e, f, d = defects[i, 0]
+                    start = tuple(max_contours[s][0])
+                    end = tuple(max_contours[e][0])
+                    far = tuple(max_contours[f][0])
+                    cv2.line(self.frame, start, end, (0, 255, 0), 2)
+                    cv2.circle(self.frame, far, 5, (0, 0, 255), -1)
 
     def contours(self, areaNum):
         # diff = cv2.absdiff(self.background.astype(np.uint8), self.frame)
