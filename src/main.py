@@ -4,6 +4,7 @@ import math
 import numpy as np
 from recognition import *
 from settings import logger_settings
+from settings.recognition_settings import *
 
 """
 TODO: A real GUI
@@ -17,23 +18,6 @@ Keys:
 """
 
 CAMERA_LOG = logger_settings.setup_custom_logger("CAMERA")
-
-"""
-Variables:
-----------
-
-lower - the lowest HSV skin color
-upper - the highest HSV skin color
-
-Please mind that lower and upper color threshold need to be adjusted with
-surrounding situation
-"""
-
-# lower = np.array([0,133,77], dtype="uint8")
-# upper = np.array([255,173,127], dtype="uint8")
-
-lower = np.array([0,140,0], dtype="uint8")
-upper = np.array([255,173,127], dtype="uint8")
 
 right_rectangle_points = [(700, 0), (1200, 350)]
 left_rectangle_points = [(0, 0), (400, 350)]
@@ -57,30 +41,15 @@ def capture_camera_loop():
             (math.floor(0.35 * width), 350)
         ]
 
-        CAMERA_LOG.info(f"Left Rectangle Points {left_rectangle_points}")
-        CAMERA_LOG.info(f"Right Rectangle Points {right_rectangle_points}")
+        CAMERA_LOG.debug(f"Camera Width: {width} Height: {height}")
+        CAMERA_LOG.debug(f"Left Rectangle Points {left_rectangle_points}")
+        CAMERA_LOG.debug(f"Right Rectangle Points {right_rectangle_points}")
 
     # Read first frame
     ret, frame = camera.read()
     frame = cv2.flip(frame, 1)
-    right_frame_class = VideoEnhancement(frame, lower, upper, right_rectangle_points)
-    left_frame_class = VideoEnhancement(frame, lower, upper, left_rectangle_points)
-
-    if camera.isOpened():
-        width = camera.get(3)
-        height = camera.get(4)
-
-        right_rectangle_points = [
-            ( math.floor(0.65 * width),0),
-            ( math.floor(1 * width),350)
-        ]
-        left_rectangle_points = [
-            ( math.floor(0 * width),0),
-            ( math.floor(0.35 * width),350)
-        ]
-
-        CAMERA_LOG.info(f"Left Rectangle Points {left_rectangle_points}")
-        CAMERA_LOG.info(f"Right Rectangle Points {right_rectangle_points}")
+    right_frame_class = VideoEnhancement(frame, HSV_LOWER2, HSV_UPPER2, right_rectangle_points)
+    left_frame_class = VideoEnhancement(frame, HSV_LOWER2, HSV_UPPER2, left_rectangle_points)
 
     while True:
         # Capture frames
@@ -133,6 +102,7 @@ def capture_camera_loop():
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
 
+    # ------------------ Background subtraction version -----------------
     # run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
 
     # Quit
