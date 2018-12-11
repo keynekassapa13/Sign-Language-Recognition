@@ -113,7 +113,7 @@ def capture_camera_loop():
             break
 
     # Quit
-    logger_settings.log_time()
+    CAMERA_LOG.info(f"End")
     camera.release()
 
 
