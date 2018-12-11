@@ -45,12 +45,6 @@ class VideoEnhancement:
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2YCR_CB)
         self.frame = cv2.GaussianBlur(self.frame, (3, 3), 0)
 
-    def background_avg(self, weight: float = 0.2):
-        if self.background is None:
-            self.background = self.frame.copy().astype(np.float)
-        else:
-            cv2.accumulateWeighted(self.frame, self.background, weight)
-
     def backgroundSubstraction(self):
         bgmask = cv2.createBackgroundSubtractorMOG2()
         self.frame = bgmask.apply(self.frame)
