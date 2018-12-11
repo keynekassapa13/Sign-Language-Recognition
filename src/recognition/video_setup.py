@@ -43,6 +43,7 @@ class VideoEnhancement:
         self.frame = cv.inRange(self.frame, self.lower, self.upper)
 
     def contours(self, areaNum):
+        
         ret, thresh = cv.threshold(self.frame, 50, 255, cv.THRESH_BINARY)
         # _, contours, _ = cv.findContours(
         #     self.frame,
@@ -88,15 +89,25 @@ class VideoEnhancement:
         counter = 0
         if defects is not None:
             for i in range(defects.shape[0]):
+
+                """
+                Defects:
+                --------
+
+                s = CvPoint* start         --> point of the contour where the defect begins
+                e = CvPoint* end           --> point of the contour where the defect ends
+                d = CvPoint* depth_point   --> the farthest from the convex hull point within the defect
+                f = float depth            --> distance between the farthest point and the convex hull
+                """
                 s, e, f, d = defects[i, 0]
                 start = tuple(cnt[s][0])
                 end = tuple(cnt[e][0])
                 far = tuple(cnt[f][0])
 
-                if (d < 20000):
+                if (d < 10000):
                     continue
 
-                if (far[1] >= (cy+40)):
+                if (far[1] >= (cy + 40)):
                     continue
 
                 cv.line(self.frame, end, far, (0, 100, 0), 2, 8)
