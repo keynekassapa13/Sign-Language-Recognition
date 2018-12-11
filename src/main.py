@@ -19,8 +19,8 @@ Keys:
 
 CAMERA_LOG = logger_settings.setup_custom_logger("CAMERA")
 
-right_rectangle_points = [(700, 0), (1200, 350)]
-left_rectangle_points = [(0, 0), (400, 350)]
+# right_rectangle_points = [(700, 0), (1200, 350)]
+# left_rectangle_points = [(0, 0), (400, 350)]
 
 # TODO: James is going to clean this up!!
 def capture_camera_loop():
@@ -33,12 +33,12 @@ def capture_camera_loop():
         height = camera.get(cv.CAP_PROP_FRAME_HEIGHT)
 
         right_rectangle_points = [
-            (math.floor(0.65 * width), 0),
-            (math.floor(1 * width), 350)
+            (math.floor(0.65 * width * 2), 0),
+            (math.floor(1 * width * 2), 350)
         ]
         left_rectangle_points = [
-            (math.floor(0 * width), 0),
-            (math.floor(0.35 * width), 350)
+            (math.floor(0 * width * 2), 0),
+            (math.floor(0.35 * width * 2), 350)
         ]
 
         CAMERA_LOG.debug(f"Camera Width: {width} Height: {height}")
@@ -48,6 +48,7 @@ def capture_camera_loop():
     # Read first frame
     ret, frame = camera.read()
     frame = cv2.flip(frame, 1)
+    frame = imutils.resize(frame, int(width * 2))
     right_frame_class = VideoEnhancement(frame, HSV_LOWER2, HSV_UPPER2, right_rectangle_points)
     left_frame_class = VideoEnhancement(frame, HSV_LOWER2, HSV_UPPER2, left_rectangle_points)
 
@@ -55,6 +56,7 @@ def capture_camera_loop():
         # Capture frames
         return_val, frame = camera.read()
         frame = cv2.flip(frame, 1)
+        frame = imutils.resize(frame, int(width * 2))
 
         # ------------------ Right Hand ------------------
         # right_frame_class = VideoEnhancement(
