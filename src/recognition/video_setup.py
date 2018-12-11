@@ -60,6 +60,8 @@ class VideoEnhancement:
             else:
                 cx, cy = 0, 0
 
+            cv2.circle(self.frame, (cx, cy), 30, (0,0,255), -1)
+
             hull1 = cv2.convexHull(cnt)
 
             cv2.drawContours(self.frame, [hull1], -1, (255, 0, 0),  1, 8)
@@ -73,15 +75,17 @@ class VideoEnhancement:
                 print(e)
 
             counter = 0
-            if defects:
+            if defects is not None:
                 for i in range(defects.shape[0]):
                     s, e, f, d = defects[i, 0]
                     start = tuple(cnt[s][0])
                     end = tuple(cnt[e][0])
                     far = tuple(cnt[f][0])
 
-                    diff1 = abs(end[0]-far[0])
-                    if diff1 > 100:
+                    if (d < 20000):
+                        continue
+
+                    if (far[1] >= (cy+40)):
                         continue
 
                     cv2.line(self.frame, end, far, (0, 100, 0), 2, 8)
