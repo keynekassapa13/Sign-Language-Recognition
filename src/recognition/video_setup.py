@@ -7,7 +7,6 @@ from settings import logger_settings
 VIDEO_E = logger_settings.setup_custom_logger("VIDEO_E")
 
 
-
 class VideoEnhancement:
     """
     Video Enhancement:
@@ -32,9 +31,9 @@ class VideoEnhancement:
     def set_frame(self, frame):
         self.frame = frame
         self.original = frame
-        # self.backgroundSubstraction()
+        # self.background_substraction()
         self.make_rectangle()
-        self.__turnToYCrCb()
+        self.__turn_to_YCrCb()
 
     def make_rectangle(self):
         self.frame = self.frame[
@@ -42,44 +41,18 @@ class VideoEnhancement:
             self.rectangle[0][0]:self.rectangle[1][0]
         ]
 
-    def __turnToYCrCb(self):
+    def __turn_to_YCrCb(self):
         self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2YCR_CB)
         self.frame = cv.GaussianBlur(self.frame, (3, 3), 0)
 
-    def backgroundSubstraction(self):
+    def background_substraction(self):
         bgmask = cv.createBackgroundSubtractorMOG2()
         self.frame = bgmask.apply(self.frame)
 
-    def skinExtraction(self):
+    def skin_extraction(self):
         self.frame = cv.inRange(self.frame, self.lower, self.upper)
 
-    def contours2(self):
-        ret, self.frame = cv.threshold(self.frame, 50, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
-        im2, contours, hierarchy = cv.findContours(self.frame, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
-        if contours:
-            max_contours = max(contours, key=cv.contourArea)
-            cv.drawContours(self.frame, max_contours, -1, (0, 255, 0), 3)
-
-            hull = []
-            for i in range(len(contours)):
-                hull.append(cv.convexHull(contours[i], False))
-            for i in range(len(contours)):
-                cv.drawContours(self.frame, hull, i, (255, 0, 0), 3, 8)
-
-            hull2 = cv.convexHull(max_contours, returnPoints=False)
-            defects = cv.convexityDefects(max_contours, hull2)
-
-            if defects is not None:
-                for i in range(defects.shape[0]):
-                    s, e, f, d = defects[i, 0]
-                    start = tuple(max_contours[s][0])
-                    end = tuple(max_contours[e][0])
-                    far = tuple(max_contours[f][0])
-                    cv.line(self.frame, start, end, (0, 255, 0), 2)
-                    cv.circle(self.frame, far, 5, (0, 0, 255), -1)
-
-    def contours(self, areaNum):
+    def contours(self, area_num):
 
         """
         Contours:
@@ -94,6 +67,19 @@ class VideoEnhancement:
         #     cv.RETR_EXTERNAL,
         #     cv.CHAIN_APPROX_SIMPLE
         # )
+
+        # ret, self.frame = cv.threshold(
+        #     self.frame,
+        #     50,
+        #     255,
+        #     cv.THRESH_BINARY + cv.THRESH_OTSU
+        # )
+        # im2, contours, hierarchy = cv.findContours(
+        #     self.frame,
+        #     cv.RETR_TREE,
+        #     cv.CHAIN_APPROX_SIMPLE
+        # )
+
         im2, contours, hierarchy = cv.findContours(
             self.frame,
             cv.RETR_TREE,
@@ -120,6 +106,40 @@ class VideoEnhancement:
         cv.convexhull to convex polygon surrounded by all convex vertices
         cv.convexitydefects find convexity defects of a contour
         """
+
+        # if contours:
+        #     max_contours = max(contours, key=cv.contourArea)
+        #     cv.drawContours(self.frame, max_contours, -1, (0, 255, 0), 3)
+        #
+        #     hull = []
+        #     for i in range(len(contours)):
+        #         hull.append(cv.convexHull(contours[i], False))
+        #     for i in range(len(contours)):
+        #         cv.drawContours(self.frame, hull, i, (255, 0, 0), 3, 8)
+        #
+        #     hull2 = cv.convexHull(max_contours, returnPoints=False)
+        #     defects = cv.convexityDefects(max_contours, hull2)
+        #
+        #     if defects is not None:
+        #         for i in range(defects.shape[0]):
+        #             s, e, f, d = defects[i, 0]
+        #             start = tuple(max_contours[s][0])
+        #             end = tuple(max_contours[e][0])
+        #             far = tuple(max_contours[f][0])
+        #             cv.line(self.frame, start, end, (0, 255, 0), 2)
+        #             cv.circle(self.frame, far, 5, (0, 0, 255), -1)
+
+        # hull = []
+        #
+        # for i in range(len(contours)):
+        #     hull.append(cv.convexHull(contours[i], False))
+        #
+        # drawing = np.zeros((thresh.shape[0], thresh.shape[1], 3),snp.uint8)
+        # for i, c in enumerate(contours):
+        #     area = cv.contourArea(c)
+        #     if area > area_num:
+        #         cv.drawContours(self.frame, contours, i, (0, 255, 0), 3)
+        #         cv.drawContours(self.frame, hull, i, (255, 0, 0),  1, 8)
 
         M = cv.moments(cnt)
         if M["m00"] != 0:
@@ -167,18 +187,6 @@ class VideoEnhancement:
                 counter += 1
 
         return counter
-
-        # hull = []
-        #
-        # for i in range(len(contours)):
-        #     hull.append(cv.convexHull(contours[i], False))
-        #
-        # drawing = np.zeros((thresh.shape[0], thresh.shape[1], 3),snp.uint8)
-        # for i, c in enumerate(contours):
-        #     area = cv.contourArea(c)
-        #     if area > areaNum:
-        #         cv.drawContours(self.frame, contours, i, (0, 255, 0), 3)
-        #         cv.drawContours(self.frame, hull, i, (255, 0, 0),  1, 8)
 
     def __printText(self, text):
         try:

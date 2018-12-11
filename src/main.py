@@ -113,7 +113,7 @@ def hand_recognition_skin_extract(
 
         right_frame_class.set_frame(frame)
         right_frame_class.skin_extraction()
-        right_frame_class.contours_2()
+        right_frame_class.contours(1000)
 
         left_frame_class.set_frame(frame)
         left_frame_class.skin_extraction()
