@@ -44,31 +44,31 @@ class VideoEnhancement:
 
     def __turnToYCrCb(self):
         self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2YCR_CB)
-        self.frame = cv2.GaussianBlur(self.frame, (3, 3), 0)
+        self.frame = cv.GaussianBlur(self.frame, (3, 3), 0)
 
     def backgroundSubstraction(self):
-        bgmask = cv2.createBackgroundSubtractorMOG2()
+        bgmask = cv.createBackgroundSubtractorMOG2()
         self.frame = bgmask.apply(self.frame)
 
     def skinExtraction(self):
         self.frame = cv.inRange(self.frame, self.lower, self.upper)
 
     def contours2(self):
-        ret, self.frame = cv2.threshold(self.frame, 50, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-        im2, contours, hierarchy = cv2.findContours(self.frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        ret, self.frame = cv.threshold(self.frame, 50, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+        im2, contours, hierarchy = cv.findContours(self.frame, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
         if contours:
-            max_contours = max(contours, key=cv2.contourArea)
-            cv2.drawContours(self.frame, max_contours, -1, (0, 255, 0), 3)
+            max_contours = max(contours, key=cv.contourArea)
+            cv.drawContours(self.frame, max_contours, -1, (0, 255, 0), 3)
 
             hull = []
             for i in range(len(contours)):
-                hull.append(cv2.convexHull(contours[i], False))
+                hull.append(cv.convexHull(contours[i], False))
             for i in range(len(contours)):
-                cv2.drawContours(self.frame, hull, i, (255, 0, 0), 3, 8)
+                cv.drawContours(self.frame, hull, i, (255, 0, 0), 3, 8)
 
-            hull2 = cv2.convexHull(max_contours, returnPoints=False)
-            defects = cv2.convexityDefects(max_contours, hull2)
+            hull2 = cv.convexHull(max_contours, returnPoints=False)
+            defects = cv.convexityDefects(max_contours, hull2)
 
             if defects is not None:
                 for i in range(defects.shape[0]):
@@ -76,8 +76,8 @@ class VideoEnhancement:
                     start = tuple(max_contours[s][0])
                     end = tuple(max_contours[e][0])
                     far = tuple(max_contours[f][0])
-                    cv2.line(self.frame, start, end, (0, 255, 0), 2)
-                    cv2.circle(self.frame, far, 5, (0, 0, 255), -1)
+                    cv.line(self.frame, start, end, (0, 255, 0), 2)
+                    cv.circle(self.frame, far, 5, (0, 0, 255), -1)
 
     def contours(self, areaNum):
 
