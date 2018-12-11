@@ -87,7 +87,7 @@ class VideoEnhancement:
                 print(e)
 
             counter = 0
-            if defects:
+            if defects is not None:
                 for i in range(defects.shape[0]):
                     s, e, f, d = defects[i, 0]
                     start = tuple(cnt[s][0])
