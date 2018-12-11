@@ -17,3 +17,5 @@ HSV_UPPER1 = np.array([255, 173, 127], dtype="uint8")
 
 HSV_LOWER2 = np.array([0, 140, 0], dtype="uint8")
 HSV_UPPER2 = np.array([255, 173, 127], dtype="uint8")
+
+RESIZE = 1

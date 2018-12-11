@@ -11,7 +11,7 @@ from settings.recognition_settings import *
 """
 TODO: A real GUI
 
-For now capture_camera_loop() just runs the camera capture frame-by-frame.
+For now setup_camera() just runs the camera capture frame-by-frame.
 
 Keys:
 -----
@@ -21,11 +21,11 @@ Keys:
 
 CAMERA_LOG = logger_settings.setup_custom_logger("CAMERA")
 
-def capture_camera_loop(
+def setup_camera(
     resize=1
 ):
     """
-    Function capture_camera_loop:
+    Function setup_camera:
     -----------------------------
     TODO
     """
@@ -50,28 +50,19 @@ def capture_camera_loop(
         CAMERA_LOG.debug(f"Left Rectangle Points {left_rectangle_points}")
         CAMERA_LOG.debug(f"Right Rectangle Points {right_rectangle_points}")
 
-        hand_recognition_skin_extract(
-            camera,
-            width,
-            right_rectangle_points,
-            left_rectangle_points
-        )
-
-        # run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
-
-    # Quit
-    camera.release()
-    CAMERA_LOG.info(f"Camera {camera} released.")
+        return (camera, width, left_rectangle_points, right_rectangle_points)
+    return False
 
 
-def hand_recognition_skin_extract(
+def hand_recognition(
     camera,
+    resize,
     width: float,
     right_rectangle_points: List[Tuple[int, int]],
     left_rectangle_points: List[Tuple[int, int]]
 ):
     """
-    Function hand_recognition_skin_extract:
+    Function hand_recognition:
     -----------------------------
     Runs skin extraction methodology.
     Shows a window for left hand, right hand, and actual video capture
@@ -134,7 +125,20 @@ def hand_recognition_skin_extract(
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
 
+    # Quit
+    camera.release()
+    CAMERA_LOG.info(f"Camera {camera} released.")
+
 
 if __name__ == '__main__':
-    capture_camera_loop(1)
+    camera, width, left_rectangle_points, right_rectangle_points = setup_camera(RESIZE)
+    hand_recognition(
+        camera,
+        RESIZE,
+        width,
+        right_rectangle_points,
+        left_rectangle_points
+    )
+
+    # run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
     cv.destroyAllWindows()

@@ -18,8 +18,8 @@ class VideoEnhancement:
     """
 
     def __init__(self, frame, lower=0, upper=0, rectangle=[]):
-        self.frame = frame
-        self.original = frame
+        self.frame = None
+        self.original = None
         self.lower = lower
         self.upper = upper
         self.mask = None
@@ -32,10 +32,11 @@ class VideoEnhancement:
         self.frame = frame
         self.original = frame
         # self.background_substraction()
-        self.make_rectangle()
+
+        self.__make_rectangle()
         self.__turn_to_YCrCb()
 
-    def make_rectangle(self):
+    def __make_rectangle(self):
         self.frame = self.frame[
             self.rectangle[0][1]:self.rectangle[1][1],
             self.rectangle[0][0]:self.rectangle[1][0]
