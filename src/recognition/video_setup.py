@@ -7,15 +7,14 @@ import time
 class VideoEnhancement:
 
     def __init__(self, frame, lower = 0, upper = 0, rectangle = []):
-        self.frame = frame
+        self.frame = None
         self.original = frame
         self.lower = lower
         self.upper = upper
         self.mask = None
         self.rectangle = rectangle
         self.background = None
-        # self.rectangle()
-        # self.turnToYCrCb()
+        self.set_frame(frame)
 
     def set_frame(self, frame):
         self.frame = frame

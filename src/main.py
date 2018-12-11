@@ -1,7 +1,7 @@
 import cv2 as cv
 import imutils
+import math
 import numpy as np
-from matplotlib import pyplot as plt
 
 from recognition import *
 from settings import logger_settings
@@ -12,7 +12,7 @@ TODO: A real GUI
 For now capture_camera_loop() just runs the camera capture frame-by-frame.
 """
 
-MAIN_LOG = logger_settings.setup_custom_logger("MAIN")
+CAMERA_LOG = logger_settings.setup_custom_logger("CAMERA")
 
 # ------------------ Variables ------------------
 # lower = np.array([0,133,77], dtype="uint8")
@@ -21,28 +21,40 @@ MAIN_LOG = logger_settings.setup_custom_logger("MAIN")
 lower = np.array([0,140,0], dtype="uint8")
 upper = np.array([255,173,127], dtype="uint8")
 
-right_rectangle_points = [(700,0), (1200,350)]
-left_rectangle_points = [(0,0), (400,350)]
+right_rectangle_points = [(700, 0), (1200, 350)]
+left_rectangle_points = [(0, 0), (400, 350)]
 
 # TODO: James is going to clean this up!!
 def capture_camera_loop():
     camera = cv.VideoCapture(0)
-    MAIN_LOG.info(f"Camera {camera} capture started.")
+    CAMERA_LOG.info(f"Camera {camera} capture started.")
 
+    # Camera Size Adjustment
+    if camera.isOpened():
+        width = camera.get(cv.CAP_PROP_FRAME_WIDTH)
+        height = camera.get(cv.CAP_PROP_FRAME_HEIGHT)
+
+        right_rectangle_points = [
+            (math.floor(0.65 * width), 0),
+            (math.floor(1 * width), 350)
+        ]
+        left_rectangle_points = [
+            (math.floor(0 * width), 0),
+            (math.floor(0.35 * width), 350)
+        ]
+
+        CAMERA_LOG.info(f"Left Rectangle Points {left_rectangle_points}")
+        CAMERA_LOG.info(f"Right Rectangle Points {right_rectangle_points}")
+
+    # Read first frame
     ret, frame = camera.read()
-    frame = imutils.resize(frame, width=1200)
     frame = cv2.flip(frame, 1)
     right_frame_class = VideoEnhancement(frame, lower, upper, right_rectangle_points)
     left_frame_class = VideoEnhancement(frame, lower, upper, left_rectangle_points)
-    right_frame_class.set_frame(frame)
-    left_frame_class.set_frame(frame)
 
-    num_frames = 60
     while True:
         # Capture frames
         return_val, frame = camera.read()
-
-        frame = imutils.resize(frame, width=1200)
         frame = cv2.flip(frame, 1)
 
         # ------------------ Right Hand ------------------
@@ -54,13 +66,8 @@ def capture_camera_loop():
         # )
 
         right_frame_class.set_frame(frame)
-        if num_frames < 30:
-            right_frame_class.background_avg()
-        else:
-            # right_frame_class.make_rectangle()
-            # right_frame_class.turnToYCrCb()
-            right_frame_class.skinExtraction()
-            right_frame_class.contours(1000)
+        right_frame_class.skinExtraction()
+        right_frame_class.contours(1000)
 
         # ------------------ Left Hand ------------------
 
@@ -70,14 +77,10 @@ def capture_camera_loop():
         #     upper,
         #     left_rectangle_points
         # )
+
         left_frame_class.set_frame(frame)
-        if num_frames < 30:
-            left_frame_class.background_avg()
-        else:
-            # left_frame_class.make_rectangle()
-            # left_frame_class.turnToYCrCb()
-            left_frame_class.skinExtraction()
-            left_frame_class.contours(1000)
+        left_frame_class.skinExtraction()
+        left_frame_class.contours(1000)
 
         # ------------------ Hand Recognition ------------------
 
@@ -103,7 +106,7 @@ def capture_camera_loop():
 
     # Quit
     camera.release()
-    MAIN_LOG.info(f"Camera {camera} released.")
+    CAMERA_LOG.info(f"Camera {camera} released.")
 
 
 if __name__ == '__main__':
