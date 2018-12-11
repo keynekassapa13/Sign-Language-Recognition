@@ -7,6 +7,14 @@ from settings import logger_settings
 CAMERA_LOG = logger_settings.setup_custom_logger("MAIN")
 
 class VideoEnhancement:
+    """
+    Video Enhancement:
+    -----------------
+
+    Skin Color Extraction
+    Make contours based on the extraction
+    Do convexHull and convexity defects based on the contours
+    """
 
     def __init__(self, frame, lower = 0, upper = 0, rectangle = []):
         self.frame = frame
