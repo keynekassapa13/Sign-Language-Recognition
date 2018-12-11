@@ -6,6 +6,7 @@ from settings import logger_settings
 
 CAMERA_LOG = logger_settings.setup_custom_logger("MAIN")
 
+
 class VideoEnhancement:
     """
     Video Enhancement:
@@ -16,7 +17,7 @@ class VideoEnhancement:
     Do convexHull and convexity defects based on the contours
     """
 
-    def __init__(self, frame, lower = 0, upper = 0, rectangle = []):
+    def __init__(self, frame, lower=0, upper=0, rectangle=[]):
         self.frame = frame
         self.original = frame
         self.lower = lower
@@ -43,8 +44,16 @@ class VideoEnhancement:
 
     def contours(self, areaNum):
         ret, thresh = cv.threshold(self.frame, 50, 255, cv.THRESH_BINARY)
-        # _, contours, _ = cv.findContours(self.frame, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-        im2, contours, hierarchy = cv.findContours(self.frame, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        # _, contours, _ = cv.findContours(
+        #     self.frame,
+        #     cv.RETR_EXTERNAL,
+        #     cv.CHAIN_APPROX_SIMPLE
+        # )
+        im2, contours, hierarchy = cv.findContours(
+            self.frame,
+            cv.RETR_TREE,
+            cv.CHAIN_APPROX_SIMPLE
+        )
 
         if contours:
             areas = [cv.contourArea(c) for c in contours]
@@ -64,7 +73,7 @@ class VideoEnhancement:
         else:
             cx, cy = 0, 0
 
-        cv.circle(self.frame, (cx, cy), 30, (0,0,255), -1)
+        cv.circle(self.frame, (cx, cy), 30, (0, 0, 255), -1)
 
         hull = cv.convexHull(cnt)
         cv.drawContours(self.frame, [hull], -1, (255, 0, 0),  1, 8)
@@ -124,7 +133,11 @@ class VideoEnhancement:
 
     def frameFiltering(self):
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (11, 11))
-        self.frame = cv.erode(self.frame, kernel, iterations = 2)
-        self.frame = cv.dilate(self.frame, kernel, iterations = 2)
+        self.frame = cv.erode(self.frame, kernel, iterations=2)
+        self.frame = cv.dilate(self.frame, kernel, iterations=2)
         self.frame = cv.GaussianBlur(self.frame, (3, 3), 0)
-        self.frame = cv.bitwise_and(self.original, self.original, mask = self.frame)
+        self.frame = cv.bitwise_and(
+            self.original,
+            self.original,
+            mask=self.frame
+        )
