@@ -21,6 +21,14 @@ Keys:
 
 CAMERA_LOG = logger_settings.setup_custom_logger("CAMERA")
 
+"""
+Please mind that lower and upper color threshold need to be adjusted with
+surrounding situation
+"""
+
+HSV_LOWER2 = np.array([0, 140, 0], dtype="uint8")
+HSV_UPPER2 = np.array([255, 173, 127], dtype="uint8")
+
 
 # TODO: James is going to clean this up!!
 def capture_camera_loop():
@@ -33,12 +41,12 @@ def capture_camera_loop():
         height = camera.get(cv.CAP_PROP_FRAME_HEIGHT)
 
         right_rectangle_points = [
-            (math.floor(0.65 * width * 2), 0),
-            (math.floor(1 * width * 2), 350)
+            (math.floor(0.55 * width), 0),
+            (math.floor(1 * width), 350)
         ]
         left_rectangle_points = [
-            (math.floor(0 * width * 2), 0),
-            (math.floor(0.35 * width * 2), 350)
+            (math.floor(0 * width), 0),
+            (math.floor(0.45 * width), 350)
         ]
 
         CAMERA_LOG.debug(f"Camera Width: {width} Height: {height}")
