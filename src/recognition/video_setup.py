@@ -29,6 +29,8 @@ class VideoEnhancement:
 
     def set_frame(self, frame):
         self.frame = frame
+        self.original = frame
+        # self.backgroundSubstraction()
         self.make_rectangle()
         self.turnToYCrCb()
 
@@ -40,7 +42,6 @@ class VideoEnhancement:
 
     def turnToYCrCb(self):
         self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2YCR_CB)
-        self.frame = cv2.GaussianBlur(self.frame, (5, 5), 0)
 
     def background_avg(self, weight: float = 0.2):
         if self.background is None:
@@ -49,14 +50,15 @@ class VideoEnhancement:
             cv2.accumulateWeighted(self.frame, self.background, weight)
 
     def backgroundSubstraction(self):
-        return 0
+        bgmask = cv2.createBackgroundSubtractorMOG2()
+        self.frame = bgmask.apply(self.frame)
 
     def skinExtraction(self):
         self.frame = cv2.inRange(self.frame, self.lower, self.upper)
 
     def contours(self, areaNum):
         # diff = cv2.absdiff(self.background.astype(np.uint8), self.frame)
-        ret, thresh = cv2.threshold(self.frame, 50, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        ret, self.frame = cv2.threshold(self.frame, 50, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         # _, contours, _ = cv2.findContours(self.frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         im2, contours, hierarchy = cv2.findContours(self.frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
