@@ -93,6 +93,7 @@ class VideoEnhancement:
                 cv.line(self.frame, end, far, (0, 100, 0), 2, 8)
                 counter += 1
 
+        self.__printText(str(counter))
 
         # hull = []
         #
@@ -106,6 +107,20 @@ class VideoEnhancement:
         #         cv.drawContours(self.frame, contours, i, (0, 255, 0), 3)
         #         cv.drawContours(self.frame, hull, i, (255, 0, 0),  1, 8)
 
+    def __printText(self, text):
+        try:
+            cv.putText(
+                self.frame,
+                str(text),
+                (0, 30),
+                cv.FONT_HERSHEY_SIMPLEX,
+                1.0,
+                (255, 255, 255),
+                2,
+                cv.LINE_AA
+            )
+        except Exception as e:
+            print(e)
 
     def frameFiltering(self):
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (11, 11))
