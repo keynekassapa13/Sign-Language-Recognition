@@ -43,7 +43,14 @@ class VideoEnhancement:
         self.frame = cv.inRange(self.frame, self.lower, self.upper)
 
     def contours(self, areaNum):
-        
+
+        """
+        Contours:
+        ---------
+
+        Choose the maximum area from the contour
+        """
+
         ret, thresh = cv.threshold(self.frame, 50, 255, cv.THRESH_BINARY)
         # _, contours, _ = cv.findContours(
         #     self.frame,
@@ -63,18 +70,27 @@ class VideoEnhancement:
 
             cv.drawContours(self.frame, [cnt], -1, (0, 255, 0), 3)
 
-            self.__convexity(cnt)
+            fingers = self.__convexity(cnt)
+            self.__printText(str(fingers))
 
     def __convexity(self, cnt):
+
+        """
+        Convexity:
+        ---------
+
+        cv.moments to choose the middle point
+        cv.convexhull to convex polygon surrounded by all convex vertices
+        cv.convexitydefects find convexity defects of a contour
+        """
 
         M = cv.moments(cnt)
         if M["m00"] != 0:
             cx = int(M["m10"] / M["m00"])
             cy = int(M["m01"] / M["m00"])
+            cv.circle(self.frame, (cx, cy), 30, (0, 0, 255), -1)
         else:
             cx, cy = 0, 0
-
-        cv.circle(self.frame, (cx, cy), 30, (0, 0, 255), -1)
 
         hull = cv.convexHull(cnt)
         cv.drawContours(self.frame, [hull], -1, (255, 0, 0),  1, 8)
@@ -97,7 +113,7 @@ class VideoEnhancement:
                 s = CvPoint* start         --> point of the contour where the defect begins
                 e = CvPoint* end           --> point of the contour where the defect ends
                 d = CvPoint* depth_point   --> the farthest from the convex hull point within the defect
-                f = float depth            --> distance between the farthest point and the convex hull
+                f = float depth            --> approximate distance to farthest point
                 """
                 s, e, f, d = defects[i, 0]
                 start = tuple(cnt[s][0])
@@ -113,7 +129,7 @@ class VideoEnhancement:
                 cv.line(self.frame, end, far, (0, 100, 0), 2, 8)
                 counter += 1
 
-        self.__printText(str(counter))
+        return counter
 
         # hull = []
         #
@@ -139,6 +155,7 @@ class VideoEnhancement:
                 2,
                 cv.LINE_AA
             )
+            return 1
         except Exception as e:
             print(e)
 
