@@ -34,13 +34,14 @@ Please mind that lower and upper color threshold need to be adjusted with
 surrounding situation
 """
 
-lower = np.array([0,140,0], dtype="uint8")
-upper = np.array([255,173,127], dtype="uint8")
+lower = np.array([0, 140, 0], dtype="uint8")
+upper = np.array([255, 173, 127], dtype="uint8")
+
 
 def capture_camera_loop():
 
-    right_rectangle_points = [(700,0), (1200,350)]
-    left_rectangle_points = [(0,0), (400,350)]
+    right_rectangle_points = [(700, 0), (1200, 350)]
+    left_rectangle_points = [(0, 0), (400, 350)]
 
     camera = cv.VideoCapture(0)
     CAMERA_LOG.info(f"Camera capture started with {camera}")
@@ -57,12 +58,12 @@ def capture_camera_loop():
         height = camera.get(4)
 
         right_rectangle_points = [
-            ( math.floor(0.65 * width),0),
-            ( math.floor(1 * width),350)
+            (math.floor(0.65 * width), 0),
+            (math.floor(1 * width), 350)
         ]
         left_rectangle_points = [
-            ( math.floor(0 * width),0),
-            ( math.floor(0.35 * width),350)
+            (math.floor(0 * width), 0),
+            (math.floor(0.35 * width), 350)
         ]
 
         CAMERA_LOG.info(f"Left Rectangle Points {left_rectangle_points}")
