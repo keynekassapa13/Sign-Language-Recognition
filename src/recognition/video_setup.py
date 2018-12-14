@@ -50,10 +50,15 @@ class VideoEnhancement:
     def __image_filtering(self, iters=2):
         """Experiment attempt at filtering pass on the skin extraction step."""
         # Threshold Step, examines intensity of object and background, tries to focus only on the foreground.
-        ret, self.frame = cv.threshold(self.frame, 127, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+        # However this may not be as useful as hoped  as it seems to work best with grayscale images.
+        ret, self.frame = cv.threshold(self.frame, 50, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (9, 9))
+
+        # The following two filtering techniques are incompatible with gradient morph.
         # self.frame = cv.erode(self.frame, kernel, iterations=iters)
         # self.frame = cv.dilate(self.frame, kernel, iterations=iters)
+
+        # Gaussian Blur will try to smooth the 'holes' in the image which is helpful for the morphology step.
         self.frame = cv.GaussianBlur(self.frame, (3, 3), 0)
         self.frame = cv.morphologyEx(self.frame, cv.MORPH_GRADIENT, kernel)
 
