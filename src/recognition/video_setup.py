@@ -31,8 +31,6 @@ class VideoEnhancement:
     def set_frame(self, frame):
         self.frame = frame
         self.original = frame
-        # self.background_substraction()
-
         self.__make_rectangle()
         self.__turn_to_YCrCb()
 
@@ -44,14 +42,20 @@ class VideoEnhancement:
 
     def __turn_to_YCrCb(self):
         self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2YCR_CB)
-        self.frame = cv.GaussianBlur(self.frame, (3, 3), 0)
-
-    def background_substraction(self):
-        bgmask = cv.createBackgroundSubtractorMOG2()
-        self.frame = bgmask.apply(self.frame)
 
     def skin_extraction(self):
         self.frame = cv.inRange(self.frame, self.lower, self.upper)
+        self.__image_filtering()
+
+    def __image_filtering(self, iters=2):
+        """Experiment attempt at filtering pass on the skin extraction step."""
+        # Threshold Step, examines intensity of object and background, tries to focus only on the foreground.
+        ret, self.frame = cv.threshold(self.frame, 127, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+        kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (9, 9))
+        # self.frame = cv.erode(self.frame, kernel, iterations=iters)
+        # self.frame = cv.dilate(self.frame, kernel, iterations=iters)
+        self.frame = cv.GaussianBlur(self.frame, (3, 3), 0)
+        self.frame = cv.morphologyEx(self.frame, cv.MORPH_GRADIENT, kernel)
 
     def contours(self, area_num):
 
@@ -61,8 +65,6 @@ class VideoEnhancement:
 
         Choose the maximum area from the contour
         """
-
-        ret, thresh = cv.threshold(self.frame, 50, 255, cv.THRESH_BINARY)
         # _, contours, _ = cv.findContours(
         #     self.frame,
         #     cv.RETR_EXTERNAL,
@@ -146,7 +148,7 @@ class VideoEnhancement:
         if M["m00"] != 0:
             cx = int(M["m10"] / M["m00"])
             cy = int(M["m01"] / M["m00"])
-            cv.circle(self.frame, (cx, cy), 30, (0, 0, 255), -1)
+            cv.circle(self.frame, (cx, cy), 30, (255, 0, 0), -1)
         else:
             cx, cy = 0, 0
 
@@ -204,14 +206,3 @@ class VideoEnhancement:
             return 1
         except Exception as e:
             print(e)
-
-    def frameFiltering(self):
-        kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (11, 11))
-        self.frame = cv.erode(self.frame, kernel, iterations=2)
-        self.frame = cv.dilate(self.frame, kernel, iterations=2)
-        self.frame = cv.GaussianBlur(self.frame, (3, 3), 0)
-        self.frame = cv.bitwise_and(
-            self.original,
-            self.original,
-            mask=self.frame
-        )
