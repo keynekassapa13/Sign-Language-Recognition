@@ -1,4 +1,5 @@
 import cv2 as cv
+import pyrealsense2 as rs
 import imutils
 import math
 import numpy as np
@@ -21,6 +22,10 @@ Keys:
 
 CAMERA_LOG = logger_settings.setup_custom_logger("CAMERA")
 
+
+################################################################################
+# Standard Camera Functionality
+################################################################################
 def setup_camera(
     resize=1
 ):
@@ -77,7 +82,7 @@ def hand_recognition(
     """
     # Capture first background
     ret, frame = camera.read()
-    frame = cv2.flip(frame, 1)
+    frame = cv.flip(frame, 1)
     if resize > 1:
         frame = imutils.resize(frame, int(width * resize))
 
@@ -98,7 +103,7 @@ def hand_recognition(
     while True:
         # Capture current frame from active camera.
         return_val, frame = camera.read()
-        frame = cv2.flip(frame, 1)
+        frame = cv.flip(frame, 1)
         if resize > 1:
             frame = imutils.resize(frame, int(width * resize))
 
@@ -130,15 +135,89 @@ def hand_recognition(
     CAMERA_LOG.info(f"Camera {camera} released.")
 
 
+################################################################################
+# Realsense Depth Camera Functionality
+################################################################################
+def setup_rs_pipeline(frame_size: Tuple[int, int], framerate: int = 30):
+    """Configures the realsense streaming pipeline.
+
+    Args:
+        frame_size: Tuple(width, height) of the size of stream frame.
+        framerate: fps of stream. Default = 30fps.
+
+    Returns:
+        Configured rs pipeline that has begun streaming.
+    """
+    pipeline = rs.pipeline()
+    config = rs.config()
+    config.enable_stream(rs.stream.depth, frame_size[0], frame_size[1], rs.format.z16, framerate)
+    config.enable_stream(rs.stream.color, frame_size[0], frame_size[1], rs.format.bgr8, framerate)
+    try:
+        pipeline.start(config)
+    except Exception as e:
+        CAMERA_LOG.warn(f"RS Pipeline failed to start: {e}")
+        raise
+    return pipeline
+
+
+def hand_recognition_depth(pipeline):
+    """Runs hand recognition using depth camera.
+
+    NOTE - Not complete yet, so for now just runs the test stream to verify camera runs.
+
+    Args:
+        pipeline: realsense stream pipeline pre-configured.
+
+    """
+    stream = pipeline
+
+    while True:
+        frames = stream.wait_for_frames()
+        depth_frame = frames.get_depth_frame()
+        colour_frame = frames.get_color_frame()
+        if not depth_frame or not colour_frame:
+            continue
+
+        # Convert images to data points in np array
+        depth_image = np.asanyarray(depth_frame.get_data())
+        colour_image = np.asanyarray(colour_frame.get_data())
+
+        # Apply colour map to depth image (converts image to 8-bit per pixel first)
+        depth_colourmap = cv.applyColorMap(cv.convertScaleAbs(depth_image, alpha=0.03), cv.COLORMAP_RAINBOW)
+
+        # Vertical Stack Image
+        images = np.vstack((colour_image, depth_image, depth_colourmap))
+
+        # Show cv window
+        cv.namedWindow("Real Sense", cv.WINDOW_AUTOSIZE)
+        cv.imshow("Real Sense", images)
+
+        # Quit
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    stream.stop()
+
+
 if __name__ == '__main__':
-    camera, width, left_rectangle_points, right_rectangle_points = setup_camera(RESIZE)
-    hand_recognition(
-        camera,
-        RESIZE,
-        width,
-        right_rectangle_points,
-        left_rectangle_points
-    )
+    ############################################################################
+    # Standard + Skin Extraction
+    ############################################################################
+    # camera, width, left_rectangle_points, right_rectangle_points = setup_camera(RESIZE)
+    # hand_recognition(
+    #     camera,
+    #     RESIZE,
+    #     width,
+    #     right_rectangle_points,
+    #     left_rectangle_points
+    # )
 
     # run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
+
+    ############################################################################
+    # RealSense
+    ############################################################################
+    rs_pipeline = setup_rs_pipeline((640, 480), 30)
+    hand_recognition_depth(rs_pipeline)
+
     cv.destroyAllWindows()

@@ -6,6 +6,12 @@ from settings import logger_settings
 
 HAND_SEG_LOG = logger_settings.setup_custom_logger("HAND_SEG")
 
+"""
+This technique is potentially not as efficient as skin extraction but I have 
+left this here for future reference, in case we figure out a better method of 
+using background and motion.
+"""
+
 
 class HandRecogniserOutput:
 
