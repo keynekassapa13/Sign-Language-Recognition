@@ -203,21 +203,21 @@ if __name__ == '__main__':
     ############################################################################
     # Standard + Skin Extraction
     ############################################################################
-    # camera, width, left_rectangle_points, right_rectangle_points = setup_camera(RESIZE)
-    # hand_recognition(
-    #     camera,
-    #     RESIZE,
-    #     width,
-    #     right_rectangle_points,
-    #     left_rectangle_points
-    # )
+    camera, width, left_rectangle_points, right_rectangle_points = setup_camera(RESIZE)
+    hand_recognition(
+        camera,
+        RESIZE,
+        width,
+        right_rectangle_points,
+        left_rectangle_points
+    )
 
     # run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
 
     ############################################################################
     # RealSense
     ############################################################################
-    rs_pipeline = setup_rs_pipeline((640, 480), 30)
-    hand_recognition_depth(rs_pipeline)
+    # rs_pipeline = setup_rs_pipeline((640, 480), 30)
+    # hand_recognition_depth(rs_pipeline)
 
     cv.destroyAllWindows()
