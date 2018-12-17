@@ -172,9 +172,13 @@ def hand_recognition_depth(pipeline, frame_size: Tuple[int, int]):
     """
     # stream = pipeline
     recogniser = DepthHandRecogniser(pipeline)
-    recogniser_gui = DepthRecogniserGUI(recogniser, frame_size)
+    depth_gui = DepthRecogniserGUI(recogniser, frame_size)
 
     while True:
+        if not recogniser.get_frames():
+            CAMERA_LOG.warn("Dropped frames.")
+            continue
+        depth_gui.draw_frames()
         # frames = stream.wait_for_frames()
         # depth_frame = frames.get_depth_frame()
         # colour_frame = frames.get_color_frame()
