@@ -5,6 +5,7 @@ import math
 import numpy as np
 from typing import List, Tuple
 
+from depth_recognition import *
 from recognition import *
 from settings import logger_settings
 from settings.recognition_settings import *
@@ -160,7 +161,7 @@ def setup_rs_pipeline(frame_size: Tuple[int, int], framerate: int = 30):
     return pipeline
 
 
-def hand_recognition_depth(pipeline):
+def hand_recognition_depth(pipeline, frame_size: Tuple[int, int]):
     """Runs hand recognition using depth camera.
 
     NOTE - Not complete yet, so for now just runs the test stream to verify camera runs.
@@ -169,55 +170,63 @@ def hand_recognition_depth(pipeline):
         pipeline: realsense stream pipeline pre-configured.
 
     """
-    stream = pipeline
+    # stream = pipeline
+    recogniser = DepthHandRecogniser(pipeline)
+    recogniser_gui = DepthRecogniserGUI(recogniser, frame_size)
 
     while True:
-        frames = stream.wait_for_frames()
-        depth_frame = frames.get_depth_frame()
-        colour_frame = frames.get_color_frame()
-        if not depth_frame or not colour_frame:
-            continue
-
-        # Convert images to data points in np array
-        depth_image = np.asanyarray(depth_frame.get_data())
-        colour_image = np.asanyarray(colour_frame.get_data())
-
-        # Apply colour map to depth image (converts image to 8-bit per pixel first)
-        depth_colourmap = cv.applyColorMap(cv.convertScaleAbs(depth_image, alpha=0.03), cv.COLORMAP_RAINBOW)
-
-        # Vertical Stack Image
-        images = np.vstack((colour_image, depth_image, depth_colourmap))
-
-        # Show cv window
-        cv.namedWindow("Real Sense", cv.WINDOW_AUTOSIZE)
-        cv.imshow("Real Sense", images)
+        # frames = stream.wait_for_frames()
+        # depth_frame = frames.get_depth_frame()
+        # colour_frame = frames.get_color_frame()
+        # if not depth_frame or not colour_frame:
+        #     continue
+        #
+        # # Distance
+        # distance = depth_frame.get_distance(320, 240)
+        #
+        # # Convert images to data points in np array
+        # depth_image = np.asanyarray(depth_frame.get_data())
+        # colour_image = np.asanyarray(colour_frame.get_data())
+        #
+        # cv.putText(colour_image, str(distance) + " m", (0, 30), cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2, cv.LINE_AA)
+        #
+        # # Apply colour map to depth image (converts image to 8-bit per pixel first)
+        # depth_colourmap = cv.applyColorMap(cv.convertScaleAbs(depth_image, alpha=0.03), cv.COLORMAP_JET)
+        #
+        # # Vertical Stack Image
+        # images = np.vstack((colour_image, depth_colourmap))
+        #
+        # # Show cv window
+        # cv.namedWindow("Real Sense", cv.WINDOW_AUTOSIZE)
+        # cv.imshow("Real Sense", images)
 
         # Quit
         if cv.waitKey(1) & 0xFF == ord('q'):
             break
 
-    stream.stop()
+    recogniser.stream.stop()
 
 
 if __name__ == '__main__':
     ############################################################################
     # Standard + Skin Extraction
     ############################################################################
-    camera, width, left_rectangle_points, right_rectangle_points = setup_camera(RESIZE)
-    hand_recognition(
-        camera,
-        RESIZE,
-        width,
-        right_rectangle_points,
-        left_rectangle_points
-    )
+    # camera, width, left_rectangle_points, right_rectangle_points = setup_camera(RESIZE)
+    # hand_recognition(
+    #     camera,
+    #     RESIZE,
+    #     width,
+    #     right_rectangle_points,
+    #     left_rectangle_points
+    # )
 
     # run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
 
     ############################################################################
     # RealSense
     ############################################################################
-    # rs_pipeline = setup_rs_pipeline((640, 480), 30)
-    # hand_recognition_depth(rs_pipeline)
+    FRAME_SIZE = (640, 480)
+    rs_pipeline = setup_rs_pipeline(FRAME_SIZE, 30)
+    hand_recognition_depth(rs_pipeline, FRAME_SIZE)
 
     cv.destroyAllWindows()
