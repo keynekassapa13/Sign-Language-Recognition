@@ -8,12 +8,15 @@ DEPTH_LOG = logger_settings.setup_custom_logger("Depth Recogniser")
 
 class DepthHandRecogniser:
 
-    def __init__(self, pipeline):
+    def __init__(self, pipeline, width: int, height: int):
         self.stream = pipeline
+        self.width = width
+        self.height = height
         self.depth_frame = None
         self.depth_img = None
         self.colour_frame = None
         self.colour_img = None
+        self.threshold = None
 
     def get_frames(self) -> bool:
         """Gets a depth and colour frame from realsense stream pipeline.
@@ -35,7 +38,11 @@ class DepthHandRecogniser:
         # Process Depth Image
         self.depth_img = np.asanyarray(self.depth_frame.get_data())
         self.depth_img = cv.flip(self.depth_img, 1)
+
         # Process Colour Image
         self.colour_img = np.asanyarray(self.colour_frame.get_data())
         self.colour_img = cv.flip(self.colour_img, 1)
+
+    def segment_hand(self):
+        return
 

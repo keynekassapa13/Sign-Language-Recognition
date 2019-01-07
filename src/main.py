@@ -170,14 +170,15 @@ def hand_recognition_depth(pipeline, frame_size: Tuple[int, int]):
         pipeline: realsense stream pipeline pre-configured.
 
     """
-    # stream = pipeline
-    recogniser = DepthHandRecogniser(pipeline)
+    width, height = frame_size
+    recogniser = DepthHandRecogniser(pipeline, width, height)
     depth_gui = DepthRecogniserGUI(recogniser, frame_size)
 
     while True:
         if not recogniser.get_frames():
             CAMERA_LOG.warn("Dropped frames.")
             continue
+        recogniser.segment_hand()
         depth_gui.draw_frames()
         # frames = stream.wait_for_frames()
         # depth_frame = frames.get_depth_frame()
@@ -215,22 +216,22 @@ if __name__ == '__main__':
     ############################################################################
     # Standard + Skin Extraction
     ############################################################################
-    # camera, width, left_rectangle_points, right_rectangle_points = setup_camera(RESIZE)
-    # hand_recognition(
-    #     camera,
-    #     RESIZE,
-    #     width,
-    #     right_rectangle_points,
-    #     left_rectangle_points
-    # )
+    camera, width, left_rectangle_points, right_rectangle_points = setup_camera(RESIZE)
+    hand_recognition(
+        camera,
+        RESIZE,
+        width,
+        right_rectangle_points,
+        left_rectangle_points
+    )
 
-    # run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
+    run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
 
     ############################################################################
     # RealSense
     ############################################################################
-    FRAME_SIZE = (640, 480)
-    rs_pipeline = setup_rs_pipeline(FRAME_SIZE, 30)
-    hand_recognition_depth(rs_pipeline, FRAME_SIZE)
+    # FRAME_SIZE = (640, 480)
+    # rs_pipeline = setup_rs_pipeline(FRAME_SIZE, 30)
+    # hand_recognition_depth(rs_pipeline, FRAME_SIZE)
 
     cv.destroyAllWindows()
