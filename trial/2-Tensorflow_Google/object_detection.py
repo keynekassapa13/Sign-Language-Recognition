@@ -16,7 +16,7 @@ image_url = "https://farm1.staticflickr.com/4032/4653948754_c0d768086b_o.jpg"
 downloaded_image_path = download_image(image_url, 1280, 856, True)
 
 #@param ["https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1", "https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1"]
-module_handle = "https://tfhub.dev/google/faster_rcnn/openimages_v4/inception_resnet_v2/1"
+module_handle = "https://tfhub.dev/google/openimages_v4/ssd/mobilenet_v2/1"
 
 
 with tf.Graph().as_default():
