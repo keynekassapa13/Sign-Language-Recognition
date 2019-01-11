@@ -14,6 +14,6 @@ Flower Dataset contains:
 Alternatively make your own dataset, with at least 100 images per class.
 
 ## Run this example
-1. Put image dataset in tf_files/{dataset_name}. E.g., tf_files/flower_dataset
-2. In train.sh set --image_dir=tf_files/{dataset_name}
-3. Run python3 -m ./scripts/classify.py path_to_test_image
+1. Put image dataset in ./{dataset_name}. E.g., ./flower_dataset
+2. In train.sh set --image_dir={dataset_name}
+3. Run python3 scripts/classify.py path_to_test_image
