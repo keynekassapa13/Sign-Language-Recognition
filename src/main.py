@@ -140,6 +140,46 @@ def hand_recognition(
 
         # Do Tensorflow
 
+        # Left Hand
+        
+        # cv2.imwrite(filename="left_frame/" + str(i) + ".png", img=hand_recognition_frame.left_frame);
+        # left_image_data = tf.gfile.FastGFile("left_frame/" + str(i) + ".png", 'rb').read()
+        #
+        # softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
+        # predictions = sess.run(
+        #     softmax_tensor,
+        #     {'DecodeJpeg/contents:0': left_image_data}
+        # )
+        #
+        # top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
+        #
+        # for node_id in top_k:
+        #     human_string = label_lines[node_id]
+        #     score = predictions[0][node_id]
+        #     print('%s (score = %.5f)' % (human_string, score))
+        #
+        # print("\n")
+
+        # Right Hand
+
+        # cv2.imwrite(filename="right_frame/" + str(i) + ".png", img=hand_recognition_frame.right_frame);
+        # right_image_data = tf.gfile.FastGFile("right_frame/" + str(i) + ".png", 'rb').read()
+        #
+        # softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
+        # predictions = sess.run(
+        #     softmax_tensor,
+        #     {'DecodeJpeg/contents:0': right_image_data}
+        # )
+        #
+        # top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
+        #
+        # for node_id in top_k:
+        #     human_string = label_lines[node_id]
+        #     score = predictions[0][node_id]
+        #     print('%s (score = %.5f)' % (human_string, score))
+        #
+        # print("\n")
+
         cv.imshow('Left Hand', hand_recognition_frame.left_frame)
         cv.imshow('Right Hand', hand_recognition_frame.right_frame)
         cv.imshow('Original', hand_recognition_frame.original)
