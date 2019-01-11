@@ -16,4 +16,5 @@ Alternatively make your own dataset, with at least 100 images per class.
 ## Run this example
 1. Put image dataset in ./{dataset_name}. E.g., ./flower_dataset
 2. In train.sh set --image_dir={dataset_name}
+    * If you want to run tensorboard, use: tensorboard --logdir ./tf_files/training_summaries (assuming you have an alias)
 3. Run python3 scripts/classify.py path_to_test_image
