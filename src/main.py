@@ -3,6 +3,7 @@ import pyrealsense2 as rs
 import imutils
 import math
 import numpy as np
+import tensorflow as tf
 from typing import List, Tuple
 
 from depth_recognition import *
@@ -23,6 +24,17 @@ Keys:
 
 CAMERA_LOG = logger_settings.setup_custom_logger("CAMERA")
 
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+# label_lines = [line.rstrip() for line
+#                in tf.gfile.GFile("tf_files/retrained_labels.txt")]
+#
+# with tf.gfile.FastGFile("tf_files/retrained_graph.pb", 'rb') as f:
+#     graph_def = tf.GraphDef()
+#     graph_def.ParseFromString(f.read())
+#     _ = tf.import_graph_def(
+#         graph_def,
+#         name=''
+#     )
 
 ################################################################################
 # Standard Camera Functionality
@@ -123,6 +135,8 @@ def hand_recognition(
             left_rectangle_points,
             right_rectangle_points
         )
+
+        # Do Tensorflow
 
         cv.imshow('Left Hand', hand_recognition_frame.left_frame)
         cv.imshow('Right Hand', hand_recognition_frame.right_frame)
