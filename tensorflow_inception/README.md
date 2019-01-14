@@ -2,6 +2,7 @@
 See the following as references:
 * [Building an Image Classifier using Tensorflow](https://medium.com/datadriveninvestor/building-an-image-classifier-using-tensorflow-3ac9ccc92e7c)
 * [Google codelabs: Tensorflow for Poets - Google Codelab](https://codelabs.developers.google.com/codelabs/tensorflow-for-poets/#0)
+* [Google ImageNet Classifier](https://github.com/tensorflow/models/blob/master/tutorials/image/imagenet/classify_image.py)
 * [Towards Data Science: Deep Learning with Tensorflow: Face Classification and Video Inputs](https://towardsdatascience.com/deep-learning-with-tensorflow-part-4-face-classification-and-video-inputs-fa078f22c1e5)
 
 ## Dataset
