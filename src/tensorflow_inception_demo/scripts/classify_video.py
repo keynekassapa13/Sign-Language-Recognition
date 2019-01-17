@@ -1,3 +1,4 @@
+import argparse
 import cv2 as cv
 import math
 import sys
@@ -8,14 +9,19 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 
 # TODO: Might want to touch up the script into a class, though not essential to functionality.
+parser = argparse.ArgumentParser(description="Classify from video stream.")
+parser.add_argument('--tf_files', help='Path to tf_files', required=True)
+args = vars(parser.parse_args())
 
-# Get Labels
+# Get Labels, should fine: "tf_files/retrained_labels.txt"
+retrained_labels = os.path.join(args['tf_files'], 'retrained_labels.txt')
 label_lines = [line.rstrip() for line
-               in tf.gfile.GFile("tf_files/retrained_labels.txt")]
+               in tf.gfile.GFile(retrained_labels)]
 
-# Tensorflow Graphs
-with tf.gfile.FastGFile("tf_files/retrained_graph.pb", 'rb') as f:
-    graph_def = tf.GraphDef()  ## The graph-graph_def is a saved copy of a TensorFlow graph; objektinitialisierung
+# Tensorflow Graphs, should find: "tf_files/retrained_graph.pb"
+retrained_graph = os.path.join(args['tf_files'], 'retrained_graph.pb')
+with tf.gfile.FastGFile(retrained_graph, 'rb') as f:
+    graph_def = tf.GraphDef()  # The graph-graph_def is a saved copy of a TensorFlow graph
     graph_def.ParseFromString(f.read())  # Parse serialized protocol buffer data into variable
     _ = tf.import_graph_def(graph_def,
                             name='')  # import a serialized TensorFlow GraphDef protocol buffer, extract objects in the GraphDef as tf.Tensor
