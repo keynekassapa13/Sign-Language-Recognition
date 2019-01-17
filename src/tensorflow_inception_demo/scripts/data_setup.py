@@ -54,7 +54,7 @@ def setup_data(dataset_name: str, output_root: str, data_path: str, labels_path:
     # For each folder, check it against the master labels csv file
     # read CSV
     master_df = pd.read_csv(labels_path,
-                            sep=';',
+                            sep=';|,',
                             names=["ID", "LABEL"])
     for folder in data_folders:
         id = int(os.path.basename(folder))
