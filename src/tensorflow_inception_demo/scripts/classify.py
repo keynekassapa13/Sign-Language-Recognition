@@ -2,6 +2,9 @@ import tensorflow as tf
 import sys
 import os
 
+'''
+Source: https://towardsdatascience.com/deep-learning-with-tensorflow-part-4-face-classification-and-video-inputs-fa078f22c1e5
+'''
 # speicherorte fuer trainierten graph und labels in train.sh festlegen ##
 
 # Disable tensorflow compilation warnings

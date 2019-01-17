@@ -4,6 +4,10 @@ import math
 import sys
 import os
 
+'''
+Adapted fromm: https://towardsdatascience.com/deep-learning-with-tensorflow-part-4-face-classification-and-video-inputs-fa078f22c1e5
+'''
+
 # Disable tensorflow compilation warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
