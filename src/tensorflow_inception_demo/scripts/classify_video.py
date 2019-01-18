@@ -14,7 +14,7 @@ import tensorflow as tf
 
 # TODO: Might want to touch up the script into a class, though not essential to functionality.
 parser = argparse.ArgumentParser(description="Classify from video stream.")
-parser.add_argument('--tf_files', help='Path to tf_files', required=True)
+parser.add_argument('--tf_files', help='Path to tf_files.', required=True)
 args = vars(parser.parse_args())
 
 # Get Labels, should fine: "tf_files/retrained_labels.txt"
