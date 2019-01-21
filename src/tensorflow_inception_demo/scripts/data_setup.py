@@ -58,18 +58,18 @@ def setup_data(dataset_name: str, output_root: str, data_path: str, labels_path:
                             names=["ID", "LABEL"])
     for folder in data_folders:
         id = int(os.path.basename(folder))
-        DATA_SETUP_LOG.info(f'Working with ID: {id}')
+        set_id = uuid.uuid4()
         # Get label associated with id and make dataset sub-folder.
         try:
             try:
                 label = master_df.loc[master_df['ID'] == id, 'LABEL'].values[0]
             except IndexError:
-                DATA_SETUP_LOG.info(f'Index Miss on ID: {id}')
                 continue
-            DATA_SETUP_LOG.info(f'Label identified: {label}')
         except TypeError:
-            DATA_SETUP_LOG.error(f'Miss on ID: {id}')
+            DATA_SETUP_LOG.error(f'Miss on ID: {id} with TypeError.')
             continue
+        DATA_SETUP_LOG.info(f'Working with ID: {id}')
+        DATA_SETUP_LOG.info(f'Label identified: {label}')
         destination = os.path.join(dataset_path, label)
         DATA_SETUP_LOG.info(f'Destination for images: {destination}')
         if not os.path.exists(destination):
@@ -77,7 +77,7 @@ def setup_data(dataset_name: str, output_root: str, data_path: str, labels_path:
         # Move all jpg images in folder to label folder
         for jpg_img in glob.iglob(os.path.join(folder, "*.jpg")):
             img_name = os.path.basename(jpg_img).split('.')[0]
-            img_name = img_name + str(uuid.uuid4()) + ".jpg"
+            img_name = f'{set_id}-{img_name}.jpg'
             file_name = os.path.join(destination, img_name)
             DATA_SETUP_LOG.info(f"Copied image: {file_name}")
             shutil.copy(jpg_img, file_name)
