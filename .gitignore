@@ -117,3 +117,8 @@ dmypy.json
 # Data
 ./trial/0-OpenCV-PyTorch-Signs/data
 log.txt
+
+# Tensorflow
+src/tensorflow/training_dataset
+src/tensorflow/tf_files
+src/tensorflow/inception
