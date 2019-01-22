@@ -67,8 +67,11 @@ class VideoEnhancement:
             areas = [cv.contourArea(c) for c in contours]
             max_index = np.argmax(areas)
             cnt = contours[max_index]
+            temp_area = cv.contourArea(cnt)
+            if (temp_area < area_num):
+                return
 
-            cv.drawContours(self.frame, [cnt], 0, (255, 255, 255), 3)
+            cv.drawContours(self.frame, [cnt], -1, (255, 255, 255), 2)
 
             fingers = self.__convexity(cnt)
             self.__printText(str(fingers))
@@ -88,12 +91,12 @@ class VideoEnhancement:
         if M["m00"] != 0:
             cx = int(M["m10"] / M["m00"])
             cy = int(M["m01"] / M["m00"])
-            cv.circle(self.frame, (cx, cy), 30, (255, 0, 0), -1)
+            cv.circle(self.frame, (cx, cy), 35, (255, 0, 0), -1)
         else:
             cx, cy = 0, 0
 
         hull = cv.convexHull(cnt)
-        cv.drawContours(self.frame, [hull], -1, (255, 0, 0),  1, 8)
+        cv.drawContours(self.frame, [hull], -1, (255, 0, 255),  2, 8)
         hull = cv.convexHull(cnt, returnPoints=False)
 
         try:
@@ -119,6 +122,8 @@ class VideoEnhancement:
                 start = tuple(cnt[s][0])
                 end = tuple(cnt[e][0])
                 far = tuple(cnt[f][0])
+
+                cv.circle(self.frame,start,5,[69, 229, 48],-1)
 
                 if (d < 10000):
                     continue

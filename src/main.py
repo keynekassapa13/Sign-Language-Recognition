@@ -109,11 +109,11 @@ def hand_recognition(
 
         right_frame_class.set_frame(frame)
         right_frame_class.skin_extraction()
-        right_frame_class.contours(1000)
+        right_frame_class.contours(CONTOURS_AREA_THRESH)
 
         left_frame_class.set_frame(frame)
         left_frame_class.skin_extraction()
-        left_frame_class.contours(1000)
+        left_frame_class.contours(CONTOURS_AREA_THRESH)
 
         hand_recognition_frame = HandRecognition(
             left_frame_class.frame,
