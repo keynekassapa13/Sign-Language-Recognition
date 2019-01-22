@@ -20,22 +20,33 @@ class VideoEnhancement:
     def __init__(self, frame, lower=0, upper=0, rectangle=[]):
         self.frame = None
         self.original = None
+        self.bw = None
+
         self.lower = lower
         self.upper = upper
         self.mask = None
         self.rectangle = rectangle
         self.background = None
         self.max_contours = None
+
         self.set_frame(frame)
 
     def set_frame(self, frame):
-        self.frame = frame
         self.original = frame
-        self.__make_rectangle()
-        self.__turn_to_YCrCb()
+        self.original = self.original[
+            self.rectangle[0][1]:self.rectangle[1][1],
+            self.rectangle[0][0]:self.rectangle[1][0]
+        ]
+        self.frame = self.original
+        self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2YCR_CB)
 
     def skin_extraction(self):
-        self.frame = cv.inRange(self.frame, self.lower, self.upper)
+        self.bw = cv.inRange(self.frame, self.lower, self.upper)
+        self.frame = cv.bitwise_and(
+            self.original,
+            self.original,
+            mask = self.bw
+        )
 
     def contours(self, area_num):
 
@@ -47,7 +58,7 @@ class VideoEnhancement:
         """
 
         _, contours, _ = cv.findContours(
-            self.frame,
+            self.bw,
             cv.RETR_TREE,
             cv.CHAIN_APPROX_SIMPLE
         )
@@ -57,19 +68,10 @@ class VideoEnhancement:
             max_index = np.argmax(areas)
             cnt = contours[max_index]
 
-            cv.drawContours(self.frame, [cnt], -1, (0, 255, 0), 3)
+            cv.drawContours(self.frame, [cnt], 0, (255, 255, 255), 3)
 
             fingers = self.__convexity(cnt)
             self.__printText(str(fingers))
-
-    def __make_rectangle(self):
-        self.frame = self.frame[
-            self.rectangle[0][1]:self.rectangle[1][1],
-            self.rectangle[0][0]:self.rectangle[1][0]
-        ]
-
-    def __turn_to_YCrCb(self):
-        self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2YCR_CB)
 
     def __convexity(self, cnt):
 
