@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
 import time
+import math
 from settings import logger_settings
 
 VIDEO_E = logger_settings.setup_custom_logger("VIDEO_E")
@@ -105,7 +106,7 @@ class VideoEnhancement:
             defects = None
             print(e)
 
-        counter = 0
+        counter = 1
         if defects is not None:
             for i in range(defects.shape[0]):
 
@@ -119,11 +120,9 @@ class VideoEnhancement:
                 f = float depth            --> approximate distance to farthest point
                 """
                 s, e, f, d = defects[i, 0]
-                start = tuple(cnt[s][0])
-                end = tuple(cnt[e][0])
-                far = tuple(cnt[f][0])
-
-                cv.circle(self.frame,start,5,[69, 229, 48],-1)
+                start = tuple(cnt[s][0])    # tip
+                end = tuple(cnt[e][0])      # tip
+                far = tuple(cnt[f][0])      # angle
 
                 if (d < 10000):
                     continue
@@ -131,8 +130,13 @@ class VideoEnhancement:
                 if (far[1] >= (cy + 40)):
                     continue
 
-                cv.line(self.frame, end, far, (0, 100, 0), 2, 8)
-                counter += 1
+                # From https://github.com/patilnabhi/tbotnav/blob/master/scripts/fingers_recog.py
+
+                if self.__angle_rad(np.subtract(start, far), np.subtract(end, far)) < self.__deg2rad(80):
+                    counter += 1
+                    cv.circle(self.frame, far, 5, [0, 255, 0], -1)
+                else:
+                    cv.circle(self.frame, far, 5, [0, 0, 255], -1)
 
         return counter
 
@@ -151,3 +155,9 @@ class VideoEnhancement:
             return 1
         except Exception as e:
             print(e)
+
+    def __angle_rad(self, v1, v2):
+	       return np.arctan2(np.linalg.norm(np.cross(v1, v2)), np.dot(v1, v2))
+
+    def __deg2rad(self, angle_deg):
+    	return angle_deg/180.0*np.pi
