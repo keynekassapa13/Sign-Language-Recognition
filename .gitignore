@@ -119,6 +119,6 @@ dmypy.json
 log.txt
 
 # Tensorflow
-src/tensorflow/training_dataset
-src/tensorflow/tf_files
-src/tensorflow/inception
+src/mllib/training_dataset
+src/mllib/tf_files
+src/mllib/inception
