@@ -802,6 +802,7 @@ def add_evaluation_step(result_tensor, ground_truth_tensor):
 
 
 def main(_):
+  start = timer()
   # Setup the directory we'll write summaries to for TensorBoard
   if tf.gfile.Exists(FLAGS.summaries_dir):
     tf.gfile.DeleteRecursively(FLAGS.summaries_dir)
@@ -828,6 +829,7 @@ def main(_):
   do_distort_images = should_distort_images(
       FLAGS.flip_left_right, FLAGS.random_crop, FLAGS.random_scale,
       FLAGS.random_brightness)
+
 
   with tf.Session(graph=graph) as sess:
 
@@ -947,10 +949,13 @@ def main(_):
       f.write(output_graph_def.SerializeToString())
     with gfile.FastGFile(FLAGS.output_labels, 'w') as f:
       f.write('\n'.join(image_lists.keys()) + '\n')
+    end = timer()
+    print(f'Execution time: {end - start} seconds.')
+    print(f'Execution time: {(end - start) / 60} minutes.')
+    print(f'Execution time: {(end - start) / 3600} hours')
 
 
 if __name__ == '__main__':
-    start = timer()
     parser = argparse.ArgumentParser()
     parser.add_argument(
       '--image_dir',	# definiert in train.sh
@@ -1106,7 +1111,4 @@ if __name__ == '__main__':
     )
     FLAGS, unparsed = parser.parse_known_args()
     tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
-    end = timer()
-    print(f'Execution time: {end - start} seconds.')
-    print(f'Execution time: {(end - start) / 60} minutes.')
-    print(f'Execution time: {(end - start) / 3600} hours')
+
