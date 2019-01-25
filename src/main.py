@@ -144,8 +144,6 @@ def hand_recognition(
                 left_frame_class,
                 right_frame_class,
                 frame,
-                left_rectangle_points,
-                right_rectangle_points,
                 rectangle_points
             )
 

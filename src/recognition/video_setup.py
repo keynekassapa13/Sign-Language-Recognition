@@ -73,12 +73,12 @@ class VideoEnhancement:
             cnt = contours[max_index]
             temp_area = cv.contourArea(cnt)
             if (temp_area < area_num):
+                self.final_count = None
                 return
 
             cv.drawContours(self.frame, [cnt], -1, (255, 255, 255), 2)
 
             self.final_count = self.__convexity(cnt)
-            self.__printText(str(self.final_count))
 
     def __convexity(self, cnt):
 
@@ -142,22 +142,6 @@ class VideoEnhancement:
                     cv.circle(self.frame, far, 5, [0, 0, 255], -1)
 
         return counter
-
-    def __printText(self, text):
-        try:
-            cv.putText(
-                self.frame,
-                str(text),
-                (0, 30),
-                cv.FONT_HERSHEY_SIMPLEX,
-                1.0,
-                (255, 255, 255),
-                2,
-                cv.LINE_AA
-            )
-            return 1
-        except Exception as e:
-            print(e)
 
     def __angle_rad(self, v1, v2):
 	       return np.arctan2(np.linalg.norm(np.cross(v1, v2)), np.dot(v1, v2))

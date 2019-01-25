@@ -9,8 +9,6 @@ class HandRecognition:
         left_frame,
         right_frame,
         original,
-        left_rectangle,
-        right_rectangle,
         rectangle_points
     ):
         self.left_frame = left_frame
@@ -19,10 +17,18 @@ class HandRecognition:
 
         self.all_rectangles = None
 
-        self.left_rectangle = left_rectangle
-        self.right_rectangle = right_rectangle
+        self.left_rectangle = left_frame.rectangle
+        self.right_rectangle = right_frame.rectangle
         self.rectangle_points = rectangle_points
         self.__rectangle()
+        self.printResult()
+
+    def printResult(self):
+        self.__printText(self.left_frame.frame, str(self.left_frame.final_count))
+        self.__printText(self.right_frame.frame, str(self.right_frame.final_count))
+
+    def classification(self):
+        return
 
     def __rectangle(self):
         self.original = cv.rectangle(
@@ -45,3 +51,19 @@ class HandRecognition:
             self.rectangle_points[0][1]:self.rectangle_points[1][1],
             self.rectangle_points[0][0]:self.rectangle_points[1][0]
         ]
+
+    def __printText(self, frame, text):
+        try:
+            cv.putText(
+                frame,
+                str(text),
+                (0, 30),
+                cv.FONT_HERSHEY_SIMPLEX,
+                1.0,
+                (255, 255, 255),
+                2,
+                cv.LINE_AA
+            )
+            return 1
+        except Exception as e:
+            print(e)
