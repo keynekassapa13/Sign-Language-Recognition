@@ -147,20 +147,24 @@ def hand_recognition(
                 rectangle_points
             )
 
-            # predictions = sess.run(softmax_tensor, {'Cast:0': hand_recognition_frame.all_rectangles})
-            #
-            # top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
-            #
-            # for node_id in top_k:
-            #     human_string = label_lines[node_id]
-            #     score = predictions[0][node_id]
-            #     print('%s (score = %.5f)' % (human_string, score))
-            #
-            # print('------------------ \n\n')
+            predictions = sess.run(softmax_tensor, {'Cast:0': hand_recognition_frame.all_rectangles})
+            top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
+
+            i = 0
+
+            for node_id in top_k:
+                if i == 3:
+                    break
+                i += 1
+                human_string = label_lines[node_id]
+                score = predictions[0][node_id]
+                print('%s (score = %.5f)' % (human_string, score))
+
+            print('------------------ \n\n')
 
             cv.imshow('Left Hand', hand_recognition_frame.left_frame.frame)
             cv.imshow('Right Hand', hand_recognition_frame.right_frame.frame)
-            cv.imshow('Original', hand_recognition_frame.original)
+            cv.imshow('Rectangles', hand_recognition_frame.show_original)
 
             if cv.waitKey(1) & 0xFF == ord('q'):
                 break
