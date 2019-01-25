@@ -53,19 +53,30 @@ def setup_camera(
         height = camera.get(cv.CAP_PROP_FRAME_HEIGHT)
 
         right_rectangle_points = [
-            (math.floor(0.55 * width * resize), 0),
-            (math.floor(1 * width * resize), 350)
+            (math.floor(0.5 * width * resize), 100),
+            (math.floor(0.9 * width * resize), 350)
         ]
         left_rectangle_points = [
-            (math.floor(0 * width * resize), 0),
-            (math.floor(0.45 * width * resize), 350)
+            (math.floor(0.1 * width * resize), 100),
+            (math.floor(0.5 * width * resize), 350)
+        ]
+
+        rectangle_points = [
+            (math.floor(0.1 * width * resize), 100),
+            (math.floor(0.9 * width * resize), 350)
         ]
 
         CAMERA_LOG.debug(f"Camera Width: {width} Height: {height}")
         CAMERA_LOG.debug(f"Left Rectangle Points {left_rectangle_points}")
         CAMERA_LOG.debug(f"Right Rectangle Points {right_rectangle_points}")
 
-        return (camera, width, left_rectangle_points, right_rectangle_points)
+        return (
+            camera,
+            width,
+            left_rectangle_points,
+            right_rectangle_points,
+            rectangle_points
+        )
     return False
 
 
@@ -74,7 +85,8 @@ def hand_recognition(
     resize,
     width: float,
     right_rectangle_points: List[Tuple[int, int]],
-    left_rectangle_points: List[Tuple[int, int]]
+    left_rectangle_points: List[Tuple[int, int]],
+    rectangle_points: List[Tuple[int, int]]
 ):
     """
     Function hand_recognition:
@@ -124,29 +136,32 @@ def hand_recognition(
             right_frame_class.skin_extraction()
             right_frame_class.contours(CONTOURS_AREA_THRESH)
 
-            predictions = sess.run(softmax_tensor, {'Cast:0': right_frame_class.frame})
-
-            top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
-
-            for node_id in top_k:
-                human_string = label_lines[node_id]
-                score = predictions[0][node_id]
-                print('%s (score = %.5f)' % (human_string, score))
-
-            print('------------------ \n\n')
-
             left_frame_class.set_frame(frame)
             left_frame_class.skin_extraction()
             left_frame_class.contours(CONTOURS_AREA_THRESH)
 
             hand_recognition_frame = HandRecognition(
-                left_frame_class.frame,
-                right_frame_class.frame,
-                frame
+                left_frame_class,
+                right_frame_class,
+                frame,
+                left_rectangle_points,
+                right_rectangle_points,
+                rectangle_points
             )
 
-            cv.imshow('Left Hand', hand_recognition_frame.left_frame)
-            cv.imshow('Right Hand', hand_recognition_frame.right_frame)
+            # predictions = sess.run(softmax_tensor, {'Cast:0': hand_recognition_frame.all_rectangles})
+            #
+            # top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
+            #
+            # for node_id in top_k:
+            #     human_string = label_lines[node_id]
+            #     score = predictions[0][node_id]
+            #     print('%s (score = %.5f)' % (human_string, score))
+            #
+            # print('------------------ \n\n')
+
+            cv.imshow('Left Hand', hand_recognition_frame.left_frame.frame)
+            cv.imshow('Right Hand', hand_recognition_frame.right_frame.frame)
             cv.imshow('Original', hand_recognition_frame.original)
 
             if cv.waitKey(1) & 0xFF == ord('q'):
@@ -158,13 +173,14 @@ def hand_recognition(
 
 
 if __name__ == '__main__':
-    camera, width, left_rectangle_points, right_rectangle_points = setup_camera(RESIZE)
+    camera, width, left_rectangle_points, right_rectangle_points, rectangle_points = setup_camera(RESIZE)
     hand_recognition(
         camera,
         RESIZE,
         width,
         right_rectangle_points,
-        left_rectangle_points
+        left_rectangle_points,
+        rectangle_points
     )
     run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
 

@@ -30,6 +30,8 @@ class VideoEnhancement:
         self.background = None
         self.max_contours = None
 
+        self.final_count = None
+
         self.set_frame(frame)
 
     def set_frame(self, frame):
@@ -48,6 +50,7 @@ class VideoEnhancement:
             self.original,
             mask = self.bw
         )
+        self.original = self.frame
 
     def contours(self, area_num):
 
@@ -74,8 +77,8 @@ class VideoEnhancement:
 
             cv.drawContours(self.frame, [cnt], -1, (255, 255, 255), 2)
 
-            fingers = self.__convexity(cnt)
-            self.__printText(str(fingers))
+            self.final_count = self.__convexity(cnt)
+            self.__printText(str(self.final_count))
 
     def __convexity(self, cnt):
 
