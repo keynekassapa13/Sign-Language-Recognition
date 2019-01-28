@@ -81,8 +81,8 @@ class VideoEnhancement:
         #     cv.CHAIN_APPROX_SIMPLE
         # )
 
-        im2, contours, hierarchy = cv.findContours(
-            self.frame,
+        _, contours, _ = cv.findContours(
+            self.bw,
             cv.RETR_TREE,
             cv.CHAIN_APPROX_SIMPLE
         )
@@ -91,11 +91,14 @@ class VideoEnhancement:
             areas = [cv.contourArea(c) for c in contours]
             max_index = np.argmax(areas)
             cnt = contours[max_index]
+            temp_area = cv.contourArea(cnt)
+            if (temp_area < area_num):
+                self.final_count = 0
+                return
 
-            cv.drawContours(self.frame, [cnt], -1, (0, 255, 0), 3)
+            cv.drawContours(self.frame, [cnt], -1, (255, 255, 255), 2)
 
-            fingers = self.__convexity(cnt)
-            self.__printText(str(fingers))
+            self.final_count = self.__convexity(cnt)
 
 
     def __convexity(self, cnt):
@@ -147,12 +150,12 @@ class VideoEnhancement:
         if M["m00"] != 0:
             cx = int(M["m10"] / M["m00"])
             cy = int(M["m01"] / M["m00"])
-            cv.circle(self.frame, (cx, cy), 30, (255, 0, 0), -1)
+            cv.circle(self.frame, (cx, cy), 35, (255, 0, 0), -1)
         else:
             cx, cy = 0, 0
 
         hull = cv.convexHull(cnt)
-        cv.drawContours(self.frame, [hull], -1, (255, 0, 0),  1, 8)
+        cv.drawContours(self.frame, [hull], -1, (255, 0, 255),  2, 8)
         hull = cv.convexHull(cnt, returnPoints=False)
 
         try:
@@ -161,7 +164,7 @@ class VideoEnhancement:
             defects = None
             print(e)
 
-        counter = 0
+        counter = 1
         if defects is not None:
             for i in range(defects.shape[0]):
 
@@ -185,8 +188,13 @@ class VideoEnhancement:
                 if (far[1] >= (cy + 40)):
                     continue
 
-                cv.line(self.frame, end, far, (0, 100, 0), 2, 8)
-                counter += 1
+                # From https://github.com/patilnabhi/tbotnav/blob/master/scripts/fingers_recog.py
+
+                if self.__angle_rad(np.subtract(start, far), np.subtract(end, far)) < self.__deg2rad(80):
+                    counter += 1
+                    cv.circle(self.frame, far, 5, [0, 255, 0], -1)
+                else:
+                    cv.circle(self.frame, far, 5, [0, 0, 255], -1)
 
         return counter
 
