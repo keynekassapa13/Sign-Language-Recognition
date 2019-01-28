@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
 import time
+import math
 from settings import logger_settings
 
 VIDEO_E = logger_settings.setup_custom_logger("VIDEO_E")
