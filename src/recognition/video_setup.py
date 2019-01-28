@@ -20,47 +20,40 @@ class VideoEnhancement:
     def __init__(self, frame, lower=0, upper=0, rectangle=[]):
         self.frame = None
         self.original = None
+        self.bw = None
+
         self.lower = lower
         self.upper = upper
         self.mask = None
         self.rectangle = rectangle
+
         self.background = None
         self.max_contours = None
+
+        self.final_count = 0
+
         self.set_frame(frame)
 
-    def set_frame(self, frame):
-        self.frame = frame
-        self.original = frame
-        self.__make_rectangle()
-        self.__turn_to_YCrCb()
 
-    def __make_rectangle(self):
-        self.frame = self.frame[
+    def set_frame(self, frame):
+        self.original = frame
+        self.original = self.original[
             self.rectangle[0][1]:self.rectangle[1][1],
             self.rectangle[0][0]:self.rectangle[1][0]
         ]
-
-    def __turn_to_YCrCb(self):
+        self.frame = self.original
         self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2YCR_CB)
 
+
     def skin_extraction(self):
-        self.frame = cv.inRange(self.frame, self.lower, self.upper)
-        self.__image_filtering()
+        self.bw = cv.inRange(self.frame, self.lower, self.upper)
+        self.frame = cv.bitwise_and(
+            self.original,
+            self.original,
+            mask = self.bw
+        )
+        self.original = self.frame
 
-    def __image_filtering(self, iters=2):
-        """Experiment attempt at filtering pass on the skin extraction step."""
-        # Threshold Step, examines intensity of object and background, tries to focus only on the foreground.
-        # However this may not be as useful as hoped  as it seems to work best with grayscale images.
-        ret, self.frame = cv.threshold(self.frame, 50, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
-        kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (9, 9))
-
-        # The following two filtering techniques are incompatible with gradient morph.
-        # self.frame = cv.erode(self.frame, kernel, iterations=iters)
-        # self.frame = cv.dilate(self.frame, kernel, iterations=iters)
-
-        # Gaussian Blur will try to smooth the 'holes' in the image which is helpful for the morphology step.
-        self.frame = cv.GaussianBlur(self.frame, (3, 3), 0)
-        self.frame = cv.morphologyEx(self.frame, cv.MORPH_GRADIENT, kernel)
 
     def contours(self, area_num):
 
@@ -103,6 +96,7 @@ class VideoEnhancement:
 
             fingers = self.__convexity(cnt)
             self.__printText(str(fingers))
+
 
     def __convexity(self, cnt):
 
@@ -196,18 +190,26 @@ class VideoEnhancement:
 
         return counter
 
-    def __printText(self, text):
-        try:
-            cv.putText(
-                self.frame,
-                str(text),
-                (0, 30),
-                cv.FONT_HERSHEY_SIMPLEX,
-                1.0,
-                (255, 255, 255),
-                2,
-                cv.LINE_AA
-            )
-            return 1
-        except Exception as e:
-            print(e)
+
+    def __angle_rad(self, v1, v2):
+	       return np.arctan2(np.linalg.norm(np.cross(v1, v2)), np.dot(v1, v2))
+
+
+    def __deg2rad(self, angle_deg):
+    	return angle_deg/180.0*np.pi
+
+
+    def __image_filtering(self, iters=2):
+        """Experiment attempt at filtering pass on the skin extraction step."""
+        # Threshold Step, examines intensity of object and background, tries to focus only on the foreground.
+        # However this may not be as useful as hoped  as it seems to work best with grayscale images.
+        ret, self.frame = cv.threshold(self.frame, 50, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+        kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (9, 9))
+
+        # The following two filtering techniques are incompatible with gradient morph.
+        # self.frame = cv.erode(self.frame, kernel, iterations=iters)
+        # self.frame = cv.dilate(self.frame, kernel, iterations=iters)
+
+        # Gaussian Blur will try to smooth the 'holes' in the image which is helpful for the morphology step.
+        self.frame = cv.GaussianBlur(self.frame, (3, 3), 0)
+        self.frame = cv.morphologyEx(self.frame, cv.MORPH_GRADIENT, kernel)
