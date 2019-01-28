@@ -20,4 +20,4 @@ HSV_UPPER2 = np.array([255, 173, 127], dtype="uint8")
 
 CONTOURS_AREA_THRESH = 8000
 
-RESIZE = 1.5
+RESIZE = 0.5

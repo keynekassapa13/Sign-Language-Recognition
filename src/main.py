@@ -1,7 +1,7 @@
 import tensorflow as tf
 import sys
 import cv2 as cv
-import pyrealsense2 as rs
+# import pyrealsense2 as rs
 import imutils
 import math
 import numpy as np
@@ -56,12 +56,12 @@ def setup_camera(
         height = camera.get(cv.CAP_PROP_FRAME_HEIGHT)
 
         right_rectangle_points = [
-            (math.floor(0.55 * width * resize), 0),
-            (math.floor(1 * width * resize), 350)
+            (math.floor(0.5 * width * resize), 100),
+            (math.floor(0.9 * width * resize), 350)
         ]
         left_rectangle_points = [
-            (math.floor(0 * width * resize), 0),
-            (math.floor(0.45 * width * resize), 350)
+            (math.floor(0.1 * width * resize), 100),
+            (math.floor(0.5 * width * resize), 350)
         ]
         rectangle_points = [
             (math.floor(0.1 * width * resize), 100),
@@ -262,7 +262,8 @@ if __name__ == '__main__':
         RESIZE,
         width,
         right_rectangle_points,
-        left_rectangle_points
+        left_rectangle_points,
+        rectangle_points
     )
 
     run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
