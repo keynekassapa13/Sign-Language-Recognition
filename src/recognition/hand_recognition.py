@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2 as cv
 
+
 class HandRecognition:
 
     def __init__(
@@ -40,22 +41,22 @@ class HandRecognition:
 
     def __rectangle(self):
         self.all_rectangles = self.original[
-            self.rectangle_points[0][1]:self.rectangle_points[1][1],
-            self.rectangle_points[0][0]:self.rectangle_points[1][0]
+            self.rectangle_points[0][1]: self.rectangle_points[1][1],
+            self.rectangle_points[0][0]: self.rectangle_points[1][0]
         ]
         self.show_original = cv.rectangle(
             self.show_original,
-            (self.left_rectangle[0][0],self.left_rectangle[0][1]),
-            (self.left_rectangle[1][0],self.left_rectangle[1][1]),
-            (0,255,0),
+            (self.left_rectangle[0][0], self.left_rectangle[0][1]),
+            (self.left_rectangle[1][0], self.left_rectangle[1][1]),
+            (0, 255, 0),
             3
         )
 
         self.show_original = cv.rectangle(
             self.show_original,
-            (self.right_rectangle[0][0],self.right_rectangle[0][1]),
-            (self.right_rectangle[1][0],self.right_rectangle[1][1]),
-            (0,255,0),
+            (self.right_rectangle[0][0], self.right_rectangle[0][1]),
+            (self.right_rectangle[1][0], self.right_rectangle[1][1]),
+            (0, 255, 0),
             3
         )
 
