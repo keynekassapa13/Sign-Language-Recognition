@@ -35,7 +35,6 @@ class VideoEnhancement:
 
         self.set_frame(frame)
 
-
     def set_frame(self, frame):
         self.original = frame
         self.original = self.original[
@@ -45,7 +44,6 @@ class VideoEnhancement:
         self.frame = self.original
         self.frame = cv.cvtColor(self.frame, cv.COLOR_BGR2YCR_CB)
 
-
     def skin_extraction(self):
         self.bw = cv.inRange(self.frame, self.lower, self.upper)
         self.frame = cv.bitwise_and(
@@ -54,7 +52,6 @@ class VideoEnhancement:
             mask=self.bw
         )
         self.original = self.frame
-
 
     def contours(self, area_num):
 
@@ -100,7 +97,6 @@ class VideoEnhancement:
             cv.drawContours(self.frame, [cnt], -1, (255, 255, 255), 2)
 
             self.final_count = self.__convexity(cnt)
-
 
     def __convexity(self, cnt):
 
@@ -207,14 +203,11 @@ class VideoEnhancement:
 
         return counter
 
-
     def __angle_rad(self, v1, v2):
         return np.arctan2(np.linalg.norm(np.cross(v1, v2)), np.dot(v1, v2))
 
-
     def __deg2rad(self, angle_deg):
         return angle_deg/180.0*np.pi
-
 
     def __image_filtering(self, iters=2):
         """Experiment attempt at filtering pass on the skin extraction step."""
