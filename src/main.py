@@ -1,5 +1,7 @@
+import tensorflow as tf
+import sys
 import cv2 as cv
-import pyrealsense2 as rs
+# import pyrealsense2 as rs
 import imutils
 import math
 import numpy as np
@@ -22,11 +24,26 @@ Keys:
 """
 
 CAMERA_LOG = logger_settings.setup_custom_logger("CAMERA")
+CAMERA_LOG.debug(f"Tensorflow {tf.__version__}")
 
+label_lines = [
+    line.rstrip()
+    for line in tf.gfile.GFile("mllib/tf_files/retrained_labels.txt")
+]
 
-################################################################################
+with tf.gfile.GFile("mllib/tf_files/retrained_graph.pb", 'rb') as f:
+    graph_def = tf.GraphDef()
+    graph_def.ParseFromString(f.read())
+    _ = tf.import_graph_def(
+        graph_def,
+        name=''
+    )
+
+###############################################################################
 # Standard Camera Functionality
-################################################################################
+###############################################################################
+
+
 def setup_camera(
     resize=1
 ):
@@ -44,19 +61,29 @@ def setup_camera(
         height = camera.get(cv.CAP_PROP_FRAME_HEIGHT)
 
         right_rectangle_points = [
-            (math.floor(0.55 * width * resize), 0),
-            (math.floor(1 * width * resize), 350)
+            (math.floor(0.5 * width * resize), 100),
+            (math.floor(0.9 * width * resize), 350)
         ]
         left_rectangle_points = [
-            (math.floor(0 * width * resize), 0),
-            (math.floor(0.45 * width * resize), 350)
+            (math.floor(0.1 * width * resize), 100),
+            (math.floor(0.5 * width * resize), 350)
+        ]
+        rectangle_points = [
+            (math.floor(0.1 * width * resize), 100),
+            (math.floor(0.9 * width * resize), 350)
         ]
 
         CAMERA_LOG.debug(f"Camera Width: {width} Height: {height}")
         CAMERA_LOG.debug(f"Left Rectangle Points {left_rectangle_points}")
         CAMERA_LOG.debug(f"Right Rectangle Points {right_rectangle_points}")
 
-        return (camera, width, left_rectangle_points, right_rectangle_points)
+        return (
+            camera,
+            width,
+            left_rectangle_points,
+            right_rectangle_points,
+            rectangle_points
+        )
     return False
 
 
@@ -65,7 +92,8 @@ def hand_recognition(
     resize,
     width: float,
     right_rectangle_points: List[Tuple[int, int]],
-    left_rectangle_points: List[Tuple[int, int]]
+    left_rectangle_points: List[Tuple[int, int]],
+    rectangle_points: List[Tuple[int, int]]
 ):
     """
     Function hand_recognition:
@@ -82,63 +110,83 @@ def hand_recognition(
         left_rectangle_points: Position of left hand frame.
     """
     # Capture first background
-    ret, frame = camera.read()
-    frame = cv.flip(frame, 1)
-    if resize > 1:
-        frame = imutils.resize(frame, int(width * resize))
+    with tf.Session() as sess:
+        softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
 
-    right_frame_class = VideoEnhancement(
-        frame,
-        HSV_LOWER2,
-        HSV_UPPER2,
-        right_rectangle_points
-    )
-
-    left_frame_class = VideoEnhancement(
-        frame,
-        HSV_LOWER2,
-        HSV_UPPER2,
-        left_rectangle_points
-    )
-
-    while True:
-        # Capture current frame from active camera.
-        return_val, frame = camera.read()
+        _, frame = camera.read()
         frame = cv.flip(frame, 1)
-        if resize > 1:
+        if resize:
             frame = imutils.resize(frame, int(width * resize))
 
-        right_frame_class.set_frame(frame)
-        right_frame_class.skin_extraction()
-        right_frame_class.contours(1000)
-
-        left_frame_class.set_frame(frame)
-        left_frame_class.skin_extraction()
-        left_frame_class.contours(1000)
-
-        hand_recognition_frame = HandRecognition(
-            left_frame_class.frame,
-            right_frame_class.frame,
+        right_frame_class = VideoEnhancement(
             frame,
-            left_rectangle_points,
+            HSV_LOWER2,
+            HSV_UPPER2,
             right_rectangle_points
         )
 
-        cv.imshow('Left Hand', hand_recognition_frame.left_frame)
-        cv.imshow('Right Hand', hand_recognition_frame.right_frame)
-        cv.imshow('Original', hand_recognition_frame.original)
+        left_frame_class = VideoEnhancement(
+            frame,
+            HSV_LOWER2,
+            HSV_UPPER2,
+            left_rectangle_points
+        )
 
-        if cv.waitKey(1) & 0xFF == ord('q'):
-            break
+        while True:
+            # Capture current frame from active camera.
+            _, frame = camera.read()
+            frame = cv.flip(frame, 1)
+            if resize:
+                frame = imutils.resize(frame, int(width * resize))
 
-    # Quit
-    camera.release()
-    CAMERA_LOG.info(f"Camera {camera} released.")
+            right_frame_class.set_frame(frame)
+            right_frame_class.skin_extraction()
+            right_frame_class.contours(CONTOURS_AREA_THRESH)
+
+            left_frame_class.set_frame(frame)
+            left_frame_class.skin_extraction()
+            left_frame_class.contours(CONTOURS_AREA_THRESH)
+
+            hand_recognition_frame = HandRecognition(
+                left_frame_class,
+                right_frame_class,
+                frame,
+                rectangle_points
+            )
+
+            predictions = sess.run(
+                softmax_tensor,
+                {'Cast:0': hand_recognition_frame.all_rectangles}
+            )
+            top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
+
+            i = 0
+
+            for node_id in top_k:
+                if i == 3:
+                    break
+                i += 1
+                human_string = label_lines[node_id]
+                score = predictions[0][node_id]
+                print('%s (score = %.5f)' % (human_string, score))
+
+            print('------------------ \n\n')
+
+            cv.imshow('Left Hand', hand_recognition_frame.left_frame.frame)
+            cv.imshow('Right Hand', hand_recognition_frame.right_frame.frame)
+            cv.imshow('Rectangles', hand_recognition_frame.show_original)
+
+            if cv.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        # Quit
+        camera.release()
+        CAMERA_LOG.info(f"Camera {camera} released.")
 
 
-################################################################################
+###############################################################################
 # Realsense Depth Camera Functionality
-################################################################################
+###############################################################################
 def setup_rs_pipeline(frame_size: Tuple[int, int], framerate: int = 30):
     """Configures the realsense streaming pipeline.
 
@@ -151,8 +199,20 @@ def setup_rs_pipeline(frame_size: Tuple[int, int], framerate: int = 30):
     """
     pipeline = rs.pipeline()
     config = rs.config()
-    config.enable_stream(rs.stream.depth, frame_size[0], frame_size[1], rs.format.z16, framerate)
-    config.enable_stream(rs.stream.color, frame_size[0], frame_size[1], rs.format.bgr8, framerate)
+    config.enable_stream(
+        rs.stream.depth,
+        frame_size[0],
+        frame_size[1],
+        rs.format.z16,
+        framerate
+    )
+    config.enable_stream(
+        rs.stream.color,
+        frame_size[0],
+        frame_size[1],
+        rs.format.bgr8,
+        framerate
+    )
     try:
         pipeline.start(config)
     except Exception as e:
@@ -164,7 +224,8 @@ def setup_rs_pipeline(frame_size: Tuple[int, int], framerate: int = 30):
 def hand_recognition_depth(pipeline, frame_size: Tuple[int, int]):
     """Runs hand recognition using depth camera.
 
-    NOTE - Not complete yet, so for now just runs the test stream to verify camera runs.
+    NOTE - Not complete yet, so for now just runs
+    the test stream to verify camera runs.
 
     Args:
         pipeline: realsense stream pipeline pre-configured.
@@ -193,10 +254,19 @@ def hand_recognition_depth(pipeline, frame_size: Tuple[int, int]):
         # depth_image = np.asanyarray(depth_frame.get_data())
         # colour_image = np.asanyarray(colour_frame.get_data())
         #
-        # cv.putText(colour_image, str(distance) + " m", (0, 30), cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2, cv.LINE_AA)
+        # cv.putText(
+        # colour_image,
+        # str(distance) + " m",
+        # (0, 30),
+        # cv.FONT_HERSHEY_SIMPLEX,
+        # 1.0,
+        # (255, 255, 255), 2, cv.LINE_AA)
         #
-        # # Apply colour map to depth image (converts image to 8-bit per pixel first)
-        # depth_colourmap = cv.applyColorMap(cv.convertScaleAbs(depth_image, alpha=0.03), cv.COLORMAP_JET)
+        # Apply colour map to depth image
+        # (converts image to 8-bit per pixel first)
+        # depth_colourmap = cv.applyColorMap(
+        # cv.convertScaleAbs(depth_image, alpha=0.03),
+        # cv.COLORMAP_JET)
         #
         # # Vertical Stack Image
         # images = np.vstack((colour_image, depth_colourmap))
@@ -213,23 +283,24 @@ def hand_recognition_depth(pipeline, frame_size: Tuple[int, int]):
 
 
 if __name__ == '__main__':
-    ############################################################################
+    ###########################################################################
     # Standard + Skin Extraction
-    ############################################################################
-    camera, width, left_rectangle_points, right_rectangle_points = setup_camera(RESIZE)
+    ###########################################################################
+    camera, width, lp, rp, rps = setup_camera(RESIZE)
     hand_recognition(
         camera,
         RESIZE,
         width,
-        right_rectangle_points,
-        left_rectangle_points
+        rp,
+        lp,
+        rps
     )
 
     run_hand_segmentation(camera, (10, 100, 225, 350), 0.2)
 
-    ############################################################################
+    ###########################################################################
     # RealSense
-    ############################################################################
+    ###########################################################################
     # FRAME_SIZE = (640, 480)
     # rs_pipeline = setup_rs_pipeline(FRAME_SIZE, 30)
     # hand_recognition_depth(rs_pipeline, FRAME_SIZE)
