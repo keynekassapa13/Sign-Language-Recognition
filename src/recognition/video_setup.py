@@ -51,7 +51,7 @@ class VideoEnhancement:
         self.frame = cv.bitwise_and(
             self.original,
             self.original,
-            mask = self.bw
+            mask=self.bw
         )
         self.original = self.frame
 
@@ -173,10 +173,14 @@ class VideoEnhancement:
                 Defects:
                 --------
 
-                s = CvPoint* start         --> point of the contour where the defect begins
-                e = CvPoint* end           --> point of the contour where the defect ends
-                d = CvPoint* depth_point   --> the farthest from the convex hull point within the defect
-                f = float depth            --> approximate distance to farthest point
+                s = CvPoint* start         --> point of the contour
+                                            where the defect begins
+                e = CvPoint* end           --> point of the contour
+                                            where the defect ends
+                d = CvPoint* depth_point   --> the farthest from the convex
+                                            hull point within the defect
+                f = float depth            --> approximate distance
+                                            to farthest point
                 """
                 s, e, f, d = defects[i, 0]
                 start = tuple(cnt[s][0])
@@ -189,9 +193,13 @@ class VideoEnhancement:
                 if (far[1] >= (cy + 40)):
                     continue
 
-                # From https://github.com/patilnabhi/tbotnav/blob/master/scripts/fingers_recog.py
+                # From https://github.com/patilnabhi/
+                # tbotnav/blob/master/scripts/fingers_recog.py
 
-                if self.__angle_rad(np.subtract(start, far), np.subtract(end, far)) < self.__deg2rad(80):
+                if self.__angle_rad(
+                    np.subtract(start, far),
+                    np.subtract(end, far)
+                ) < self.__deg2rad(80):
                     counter += 1
                     cv.circle(self.frame, far, 5, [0, 255, 0], -1)
                 else:
@@ -201,24 +209,33 @@ class VideoEnhancement:
 
 
     def __angle_rad(self, v1, v2):
-	       return np.arctan2(np.linalg.norm(np.cross(v1, v2)), np.dot(v1, v2))
+        return np.arctan2(np.linalg.norm(np.cross(v1, v2)), np.dot(v1, v2))
 
 
     def __deg2rad(self, angle_deg):
-    	return angle_deg/180.0*np.pi
+        return angle_deg/180.0*np.pi
 
 
     def __image_filtering(self, iters=2):
         """Experiment attempt at filtering pass on the skin extraction step."""
-        # Threshold Step, examines intensity of object and background, tries to focus only on the foreground.
-        # However this may not be as useful as hoped  as it seems to work best with grayscale images.
-        ret, self.frame = cv.threshold(self.frame, 50, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+        # Threshold Step, examines intensity of object and background,
+        # tries to focus only on the foreground.
+        # However this may not be as useful as hoped  as
+        # it seems to work best with grayscale images.
+        ret, self.frame = cv.threshold(
+            self.frame,
+            50,
+            255,
+            cv.THRESH_BINARY + cv.THRESH_OTSU
+        )
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (9, 9))
 
-        # The following two filtering techniques are incompatible with gradient morph.
+        # The following two filtering techniques are incompatible
+        # with gradient morph.
         # self.frame = cv.erode(self.frame, kernel, iterations=iters)
         # self.frame = cv.dilate(self.frame, kernel, iterations=iters)
 
-        # Gaussian Blur will try to smooth the 'holes' in the image which is helpful for the morphology step.
+        # Gaussian Blur will try to smooth the 'holes' in the image
+        # which is helpful for the morphology step.
         self.frame = cv.GaussianBlur(self.frame, (3, 3), 0)
         self.frame = cv.morphologyEx(self.frame, cv.MORPH_GRADIENT, kernel)
