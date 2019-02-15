@@ -15,7 +15,6 @@ Environment used for this
 ## Training Data
 
 Data could be downloaded from
-https://drive.google.com/drive/folders/13OPqbeb9qSwja09gjQkLascneqClbHFg?usp=sharing
 
 - Stored in file named as training_dataset
 - Do command in train.sh

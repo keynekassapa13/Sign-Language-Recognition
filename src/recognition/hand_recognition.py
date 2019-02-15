@@ -23,9 +23,8 @@ class HandRecognition:
         self.right_rectangle = right_frame.rectangle
         self.rectangle_points = rectangle_points
         self.__rectangle()
-        self.printResult()
 
-    def printResult(self):
+    def print_result(self):
         self.__printText(
             self.left_frame.frame,
             str(self.left_frame.final_count)
@@ -106,6 +105,12 @@ class HandRecognition:
 
         self.final_prediction = final_prediction
         return final_prediction
+
+    def print_predictions(self):
+        self.__printText(
+            self.show_original,
+            str(self.final_prediction)
+        )
 
     def __rectangle(self):
         self.all_rectangles = self.original[
