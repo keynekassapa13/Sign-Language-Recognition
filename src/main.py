@@ -161,6 +161,7 @@ def hand_recognition(
             top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
 
             i = 0
+            ml_predictions = []
 
             for node_id in top_k:
                 if i == 3:
@@ -168,9 +169,13 @@ def hand_recognition(
                 i += 1
                 human_string = label_lines[node_id]
                 score = predictions[0][node_id]
-                print('%s (score = %.5f)' % (human_string, score))
+                ml_predictions.append({human_string: score})
 
-            print('------------------ \n\n')
+            hand_recognition_frame.set_ml_predictions(ml_predictions)
+            final_prediction = hand_recognition_frame.classification()
+            CAMERA_LOG.debug(f"Final Prediction: {final_prediction}\n")
+            hand_recognition_frame.print_result()
+            hand_recognition_frame.print_predictions()
 
             cv.imshow('Left Hand', hand_recognition_frame.left_frame.frame)
             cv.imshow('Right Hand', hand_recognition_frame.right_frame.frame)
